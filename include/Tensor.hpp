@@ -6,14 +6,15 @@
 #include "Storage.hpp"
 #include "Device.hpp"
 #include "intrusive_ptr_base.hpp"
-#include "utils/utils_internal_interface.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <initializer_list>
+#include "utils/vec_range.hpp"
 #include "Accessor.hpp"
-namespace cytnx{
 
+namespace cytnx{
 
 
     ///@cond
@@ -31,7 +32,7 @@ namespace cytnx{
             //tensor shape
             std::vector<cytnx_uint64> _shape;
 
-            // psudo-perm info
+            // pseudo-perm info
             std::vector<cytnx_uint64> _mapper;
             std::vector<cytnx_uint64> _invmapper;
             bool _contiguous;
@@ -48,7 +49,7 @@ namespace cytnx{
             }
             Tensor_impl(): _contiguous(true){};
 
-            void Init(const std::vector<cytnx_uint64> &shape, const unsigned int &dtype=Type.Double, const int device=-1);
+            void Init(const std::vector<cytnx_uint64> &shape, const unsigned int &dtype=Type.Double, int device=-1);
                 
             /*
             template<class T>
@@ -132,7 +133,7 @@ namespace cytnx{
  
             template<class T> 
             T& at(const std::vector<cytnx_uint64> &locator){
-                cytnx_error_msg(locator.size() != this->_shape.size(), "%s", "The input indexes rank is not match Tensor's rank.");
+                cytnx_error_msg(locator.size() != this->_shape.size(), "%s", "The input index does not match Tensor's rank.");
 
                 cytnx_uint64 RealRank,mtplyr;
                 std::vector<cytnx_uint64> c_shape(this->_shape.size());
@@ -143,7 +144,7 @@ namespace cytnx{
 
                 for(cytnx_int64 i=this->_shape.size()-1; i>=0; i--){
                     if(locator[i]>=this->_shape[i]){
-                        cytnx_error_msg(true, "%s", "The dimension of rank that trying to access is exceed Tensor's dimension.");
+                        cytnx_error_msg(true, "%s", "Attempting to access out-of-bound index in Tensor.");
                     }
                     c_shape[i] = this->_shape[this->_invmapper[i]];
                     c_loc[i] = locator[this->_invmapper[i]];
@@ -181,7 +182,7 @@ namespace cytnx{
                     }
         
                     out->_storage = this->_storage._impl->Move_memory(oldshape,this->_mapper, this->_invmapper);
-                    out->_invmapper = utils_internal::range_cpu(this->_invmapper.size());
+                    out->_invmapper = vec_range(this->_invmapper.size());
                     out->_mapper = out->_invmapper;
                     out->_shape = this->_shape;
                     out->_contiguous = true;
@@ -198,7 +199,7 @@ namespace cytnx{
                         oldshape[i] = this->_shape[this->_invmapper[i]];
                     }
                     this->_storage._impl->Move_memory_(oldshape,this->_mapper, this->_invmapper);
-                    this->_mapper = utils_internal::range_cpu(this->_invmapper.size());
+                    this->_mapper = vec_range(this->_invmapper.size());
                     this->_invmapper = this->_mapper;
                     this->_contiguous = true;
                 }
@@ -227,14 +228,14 @@ namespace cytnx{
                             
                 if(has_undetermine){
                     cytnx_error_msg(new_N >= this->_storage.size(),"%s","[ERROR] new shape exceed the total number of elements.");
-                    cytnx_error_msg(this->_storage.size()%new_N,"%s","[ERROR] unmatch size when reshape with undetermine dimension");
+                    cytnx_error_msg(this->_storage.size()%new_N,"%s","[ERROR] unmatched size when reshape with undetermined dimension");
                     result_shape[Udet_id] = this->_storage.size()/new_N;
                 }else{
                     cytnx_error_msg(new_N != this->_storage.size(),"%s","[ERROR] new shape does not match the number of elements.");
                 }
             
                 this->_shape = result_shape;
-                this->_mapper = utils_internal::range_cpu(result_shape.size());
+                this->_mapper = vec_range(result_shape.size());
                 this->_invmapper = this->_mapper; 
             }
 
