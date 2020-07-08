@@ -3,8 +3,7 @@
 #include "linalg.hpp"
 #include <string>
 
-namespace cytnx_extension{
-    using namespace cytnx;
+namespace cytnx{
     //====================================================    
     std::string CyTensorType_class::getname(const int &ut_type){
         if(ut_type==this->Void){

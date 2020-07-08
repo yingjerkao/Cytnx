@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace cytnx_extension{
+namespace cytnx{
     using namespace cytnx;
     void ContractionTree::build_default_contraction_tree(){
         this->reset_contraction_order();

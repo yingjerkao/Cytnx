@@ -9,8 +9,7 @@
 #include <map>
 #include <string>
 
-namespace cytnx_extension{
-    using namespace cytnx;
+namespace cytnx{
     /// @cond
     class Node{
         public:

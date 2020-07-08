@@ -54,7 +54,7 @@ class Hising: public cy::LinOp{
 
 int main(int argc, char* argv[]){
     cytnx_uint32 L = 4;
-    double J = 1;
+    double J = -1;
     double Hx = 0.3;
     auto H = Hising(L,J,Hx);
     cout << cy::linalg::Lanczos_ER(&H,3) << endl;

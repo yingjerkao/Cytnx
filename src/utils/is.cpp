@@ -9,17 +9,14 @@ namespace cytnx{
     bool is(const Storage &L, const Storage &R){
         return (L._impl == R._impl);
     }
-}
-
-namespace cytnx_extension{
-    bool is(const cytnx_extension::Bond &L, const cytnx_extension::Bond &R){
+    bool is(const Bond &L, const Bond &R){
         return (L._impl == R._impl);
     }
 
-    bool is(const cytnx_extension::Symmetry &L, const cytnx_extension::Symmetry &R){
+    bool is(const Symmetry &L, const Symmetry &R){
         return (L._impl == R._impl);
     }
-    bool is(const cytnx_extension::CyTensor &L, const cytnx_extension::CyTensor &R){
+    bool is(const CyTensor &L, const CyTensor &R){
         return (L._impl == R._impl);
     }
 }

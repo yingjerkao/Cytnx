@@ -7,8 +7,7 @@
 #include <utility>
 #include <vector>
 typedef cytnx::Accessor ac;
-namespace cytnx_extension{
-    using namespace cytnx;
+namespace cytnx{
 
     void DenseCyTensor::Init(const std::vector<Bond> &bonds, const std::vector<cytnx_int64> &in_labels, const cytnx_int64 &rowrank, const unsigned int &dtype,const int &device, const bool &is_diag){
 

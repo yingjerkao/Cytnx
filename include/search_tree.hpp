@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-namespace cytnx_extension{
+namespace cytnx{
     using namespace cytnx;
     /// @cond
     class PsudoCyTensor{

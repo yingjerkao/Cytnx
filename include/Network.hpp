@@ -14,8 +14,7 @@
 #include "Network.hpp"
 #include "CyTensor.hpp"
 #include "contraction_tree.hpp"
-namespace cytnx_extension{
-    using namespace cytnx;
+namespace cytnx{
     /// @cond
     struct __ntwk{
         enum __nttype{

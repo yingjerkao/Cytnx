@@ -20,8 +20,7 @@
 //#include "linalg.hpp"
 
 //namespace cytnx{
-namespace cytnx_extension{ 
-    using namespace cytnx;
+namespace cytnx{ 
     /// @cond 
     class CyTensorType_class{
         public:

@@ -3,8 +3,7 @@
 
 using namespace std;
 
-namespace cytnx_extension{
-    using namespace cytnx;
+namespace cytnx{
 
 
     cytnx_float get_cost(const PsudoCyTensor &t1, const PsudoCyTensor &t2){

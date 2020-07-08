@@ -8,8 +8,7 @@
 
 using namespace std;
 
-namespace cytnx_extension{
-    using namespace cytnx;
+namespace cytnx{
     // these two are internal functions:
     void _parse_ORDER_line_(vector<string> &tokens, const string &line, const cytnx_uint64 &line_num){
 
