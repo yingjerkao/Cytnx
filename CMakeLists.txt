@@ -80,7 +80,7 @@ endif()
 set(CYTNX_VERSION_MAJOR 0)
 set(CYTNX_VERSION_MINOR 5)
 set(CYTNX_VERSION_PATCH 5)
-set(CYTNX_VERSION COUNT 0)
+set(CYTNX_VERSION COUNT 1)
 set(CYTNX_VERSION
   ${CYTNX_VERSION_MAJOR}.${CYTNX_VERSION_MINOR}.${CYTNX_VERSION_PATCH}
 )
@@ -92,6 +92,7 @@ set(CYTNX_VERSION
 ######################################################################
 
 option(USE_ICPC "Build Cytnx with Intel Compilers" OFF)
+option(USE_OMP "Build Cytnx with OpenMP" ON)
 option(USE_CUDA "Build using Nvidia CUDA for GPU library" OFF)
 option(BUILD_PYTHON "Build Python wrapper" ON)
 option(USE_MKL "Build using MKL" OFF)
@@ -324,7 +325,7 @@ INSTALL(TARGETS cytnx EXPORT cytnx_targets
           DESTINATION ${CMAKE_INSTALL_LIBDIR}
           COMPONENT libraries
         PUBLIC_HEADER
-          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cytnx
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
           COMPONENT Development
       )
 if(BUILD_PYTHON)
@@ -343,7 +344,7 @@ install(EXPORT cytnx_targets
         DESTINATION ${INSTALL_CONFIGDIR}
         )
 install(DIRECTORY include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cytnx
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT headers
         FILES_MATCHING PATTERN 		"*.h*")
 
@@ -430,11 +431,16 @@ if(USE_CUDA)
 else()
   message( STATUS " Build CUDA Support: NO")
 endif()
-if(OPENMP_FOUND)
-  message( STATUS " Build OMP Support: YES")
+if(USE_OMP)
+    if(OPENMP_FOUND)
+      message( STATUS " Build OMP Support: YES")
+    else()
+      message( STATUS " Build OMP Support: NO  (Not found)")
+    endif()
 else()
-  message( STATUS " Build OMP Support: NO")
+      message( STATUS " Build OMP Support: NO")
 endif()
+
 if(BUILD_DOC)
   message( STATUS " Build Documentation: YES")
   message( STATUS "  - Doxygen: ${DOXYGEN_EXECUTABLE}")
