@@ -6,7 +6,7 @@
 #include <vector>
 #include <random>
 
-#include "uni10.hpp"
+#include "uni10.h"
 
 using namespace uni10;
 

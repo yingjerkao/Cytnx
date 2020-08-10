@@ -7,7 +7,7 @@
 #include <vector>
 #include <random>
 
-#include "uni10.hpp"
+#include "uni10.h"
 #include "Generator.hpp"
 
 using namespace uni10;

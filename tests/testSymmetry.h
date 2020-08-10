@@ -9,7 +9,7 @@
 
 #include "gtest/gtest.h"
 
-#include "uni10.hpp"
+#include "uni10.h"
 
 using namespace uni10;
 
