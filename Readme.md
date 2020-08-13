@@ -18,6 +18,14 @@
 
 ## Current dev Version:
     v0.5.6
+    1. [Enhance] change linalg::QR -> linalg::Qr for unify the function call 
+    2. Fix bug in UniTensor Qr, R UniTensor labels bug.
+    3. Add Qdr for UniTensor and Tensor.
+    4. Fix minor bug in internal, Type.is_float for Uint32,Uint64.
+    5. [Enhance] accessor can now specify with vector. 
+    6. [Enhance] Tproxy.item()
+    7. Fix inplace reshape_() in new way templ. does not perform inplace operation
+
 
     v0.5.5a
     1. [Feature] Tensor can now using operator() to access elements just like python. 
@@ -321,10 +329,11 @@
     --------------|-----------|-----|------|-------------|----|-------
      Pow          |   Pow_    |  Y  |  Y   |    Y        | Y  |   Y 
      Abs          |   Abs_    |  Y  |  N   |    Y        | Y  |   N 
-     QR           |   x       |  Y  |  N   |    N        | Y  |   Y 
+     Qr           |   x       |  Y  |  N   |    N        | Y  |   Y 
+     Qdr          |   x       |  Y  |  N   |    N        | Y  |   Y 
      Det          |   x       |  Y  |  N   |    N        | Y  |   N
-     Min          |   x       |  Y  |  N   |    Y        | Y  |   N 
     --------------|-----------|-----|------|-------------|----|-------
+     Min          |   x       |  Y  |  N   |    Y        | Y  |   N 
      Max          |   x       |  Y  |  N   |    Y        | Y  |   N 
     *Trace        |   x       |  Y  |  N   |    Y        | Y  |   Y
 

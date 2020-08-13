@@ -1,4 +1,4 @@
-#include "QR_internal.hpp"
+#include "QR_pivot_pivot_internal.hpp"
 #include "cytnx_error.hpp"
 #include "lapack_wrapper.hpp"
 
@@ -30,7 +30,7 @@ namespace cytnx{
 
 
         /// QR
-        void QR_internal_cd(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
+        void QR_pivot_internal_cd(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
             // Q should be the same shape as in
             // tau should be the min(M,N)
 
@@ -79,7 +79,7 @@ namespace cytnx{
 
 
         }
-        void QR_internal_cf(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
+        void QR_pivot_internal_cf(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
             // Q should be the same shape as in
             // tau should be the min(M,N)
 
@@ -131,7 +131,7 @@ namespace cytnx{
 
 
         }
-        void QR_internal_d(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
+        void QR_pivot_internal_d(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
             // Q should be the same shape as in
             // tau should be the min(M,N)
 
@@ -175,7 +175,7 @@ namespace cytnx{
 
 
         }
-        void QR_internal_f(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
+        void QR_pivot_internal_f(const boost::intrusive_ptr<Storage_base> &in, boost::intrusive_ptr<Storage_base> &Q, boost::intrusive_ptr<Storage_base> &R, boost::intrusive_ptr<Storage_base> &D, boost::intrusive_ptr<Storage_base> &tau, const cytnx_int64 &M, const cytnx_int64 &N, const bool &is_d){
             // Q should be the same shape as in
             // tau should be the min(M,N)
 

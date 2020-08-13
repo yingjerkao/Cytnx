@@ -64,7 +64,8 @@ namespace cytnx{
         cytnx::UniTensor ExpH(const cytnx::UniTensor &Tin, const double &a=1, const double &b=0);
         cytnx::UniTensor ExpM(const cytnx::UniTensor &Tin, const double &a=1, const double &b=0);
         cytnx::UniTensor Trace(const cytnx::UniTensor &Tin, const cytnx_int64 &a, const cytnx_int64 &b, const bool &by_label=false);
-        std::vector<cytnx::UniTensor> QR(const cytnx::UniTensor &Tin, const bool &is_tau=false);
+        std::vector<cytnx::UniTensor> Qr(const cytnx::UniTensor &Tin, const bool &is_tau=false);
+        std::vector<cytnx::UniTensor> Qdr(const cytnx::UniTensor &Tin, const bool &is_tau=false);
 
         // Pow:
         //==================================================
@@ -236,7 +237,7 @@ namespace cytnx{
         std::vector<Tensor> Hosvd(const Tensor &Tin, const std::vector<cytnx_uint64> &mode, const bool &is_core=true, const bool &is_Ls=false, const std::vector<cytnx_int64> &trucate_dim=std::vector<cytnx_int64>());
 
 
-        // QR:
+        // Qr:
         //==================================================
         /** 
         @brief Perform QR decomposition on a rank-2 Tensor.
@@ -248,8 +249,22 @@ namespace cytnx{
             2. the second tensor is the right-upper triangular matrix [R], a 2-d tensor (matrix). 
             3. the third tensor is the Householder reflectors [H], a 1-d tensor (matrix). It only return when is_tau=true.
         */
-        std::vector<Tensor> QR(const Tensor &Tin, const bool &is_tau=false);
+        std::vector<Tensor> Qr(const Tensor &Tin, const bool &is_tau=false);
        
+        // Qdr:
+        //==================================================
+        /** 
+        @brief Perform QDR decomposition on a rank-2 Tensor.
+        @param Tin a \link cytnx::Tensor Tensor \endlink, it should be a rank-2 tensor (matrix)
+        @param is_tau if return the tau that contains the Householder reflectors that generate q along with r. The tau array contains scaling factors for the reflectors
+        @return [std::vector<Tensors>]  
+
+            1. the first tensor is the orthomormal matrix [Q], a 2-d tensor (matrix)
+            2. the second tensor is the diagonal matrix [D], a 1-d tensor (matrix). 
+            3. the third tensor is the right-upper triangular matrix [R], a 2-d tensor (matrix). 
+            4. the forth tensor is the Householder reflectors [H], a 1-d tensor (matrix). It only return when is_tau=true.
+        */
+        std::vector<Tensor> Qdr(const Tensor &Tin, const bool &is_tau=false);
 
 
         // Eigh:
