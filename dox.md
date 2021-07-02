@@ -1,7 +1,7 @@
 # Cytnx
 
 ## Stable Version:
-    [v0.7.1](https://github.com/kaihsin/Cytnx/tree/v0.7.1a)
+    [v0.7.2](https://github.com/kaihsin/Cytnx/tree/v0.7.2a)
  
 
 
@@ -241,6 +241,7 @@
     Yu-Hsueh Chen (NTU, Taiwan): example, and testing
     Po-Kwan Wu (OSU): Icon optimization    
     Wen-Han Kao (UMN, USA) : testing of conda install 
+    Ke Hsu (NTU, Taiwan): Lstsq 
 
 ## Refereces:
 

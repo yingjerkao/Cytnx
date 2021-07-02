@@ -13,15 +13,42 @@ See The following user guide for install and using of cytnx:
 
 
 [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/version.svg)](https://anaconda.org/kaihsinwu/cytnx) [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/platforms.svg)](https://anaconda.org/kaihsinwu/cytnx)
-[![Build Status](https://travis-ci.org/kaihsin/Cytnx_build.svg?branch=master)](https://travis-ci.org/kaihsin/Cytnx_build)
 
 ## News
-    [v0.7.1] 
+    [v0.7.2] 
  
 ## Stable Version:
-[v0.7.1a](https://github.com/kaihsin/Cytnx/tree/v0.7.1a)
+[v0.7.2](https://github.com/kaihsin/Cytnx/tree/v0.7.2)
+
+## Known issues:
+    v0.7.2
+    1. [Pending][GPU] Get/Set elements on GPU is still down. 
+
 
 ## Current dev Version:
+    v0.7.3
+    1. [Fix] bug for Get slice does not reduce when dim=1. 
+    2. [Enhance] checking the memory alloc failing for EL.  
+    3. [Change] remove Tensor init assignment op from initializer_list, for conflict with UniTensor init.    
+    4. [Enhance] print information for Symmetric UniTensor.
+    5. [Enhance] linalg::ExpM/ExpH support for symmetric UniTensor.
+    6. [Enhance] add UniTensor.get_blocks_qnums() for corresponding qnums for current blocks. 
+    7. [Enhance][Safety] add UniTensor.get_blocks_(silent=false) with "silent" option by default pop-up a warning when UniTensor is non-contiguous.   
+    8. [Enhance] add operator* and operator*= for combineBond. 
+    9. [Enhance] add support for Symmetric UniTensor with is_diag=true.
+    10. [Fix] remove the dtype & device option for arange(Nelem). Use .astype() .to() instead. 
+    11. [Fix] reshape() without postfix const causing error when reshape with const Tensor. 
+    12. [Enhance][Experiment] add Lstsq for least square calculation. [PR] 
+    13. [Fix][C++] minor issue related to laterial argument passing by variables cannot properly resolved on C++ 
+
+    v0.7.2 
+    1. [Enhance] Add Tensor.set with Scalar
+    2. [Enhance][C++] Add Tensor initialize assignment op from initializer_list
+    3. [Enhance][C++] Add Storage initialize assignment op from vector & initializer list  
+    4. [Fix] bug for set partial elements on Tensor with slicing issue. 
+    5. [Fix][DenseUniTensor] set_rowrank cannot set full rank issue #24 
+
+
     v0.7.1
     1. [Enhance] Finish UniTensor arithmetic. 
     2. [Fix] bug when using Tensor.get() accessing only single element 
@@ -89,26 +116,6 @@ See The following user guide for install and using of cytnx:
 ## User Guide [under construction!]:
 
 [Cytnx User Guide](https://kaihsinwu.gitlab.io/Cytnx_doc/)
-
-
-
-## conda install [![Build Status](https://travis-ci.org/kaihsin/Cytnx_build.svg?branch=master)](https://travis-ci.org/kaihsin/Cytnx_build)
-
-
-    [Note] For Windows user, please using WSL.
-
-* Without CUDA            
-
-    python 3.6/3.7/3.8: [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/latest_release_date.svg)](https://anaconda.org/kaihsinwu/cytnx) [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/platforms.svg)](https://anaconda.org/kaihsinwu/cytnx)
-
-        conda install -c kaihsinwu cytnx
-
-* with CUDA
-
-    python 3.6/3.7/3.8: [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx_cuda/badges/latest_release_date.svg)](https://anaconda.org/kaihsinwu/cytnx_cuda)
-
-        conda install -c kaihsinwu cytnx_cuda
-    
 
 
 
@@ -350,6 +357,7 @@ See The following user guide for install and using of cytnx:
     Yu-Hsueh Chen (NTU, Taiwan): example, and testing
     Po-Kwan Wu (OSU): Icon optimization    
     Wen-Han Kao (UMN, USA) : testing of conda install 
+    Ke Hsu (NTU, Taiwan): Lstsq 
 
 ## References
 

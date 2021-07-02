@@ -198,8 +198,9 @@ namespace cytnx{
             @param new_bondType the new tag-type, it can be BD_BRA,BD_KET or BD_REG
 
             */
-            void set_type(const bondType &new_bondType){
+            Bond& set_type(const bondType &new_bondType){
                 this->_impl->set_type(new_bondType);
+                return *this;
             }
 
             /**
@@ -264,7 +265,7 @@ namespace cytnx{
             #### output>
             \verbinclude example/Bond/combineBond.py.out
             */
-            Bond combineBond(const Bond &bd_in){
+            Bond combineBond(const Bond &bd_in) const{
                 Bond out;
                 out._impl = this->_impl->combineBond(bd_in._impl);
                 return out;
@@ -361,7 +362,16 @@ namespace cytnx{
 
             bool operator==(const Bond &rhs) const;
             bool operator!=(const Bond &rhs) const;
-   
+      
+            Bond operator*(const Bond &rhs) const{
+                return this->combineBond(rhs);
+            }
+        
+            Bond& operator*=(const Bond &rhs){
+                this->combineBond_(rhs);
+                return *this;
+            }
+ 
 
  
     };

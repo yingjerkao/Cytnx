@@ -20,25 +20,13 @@ Scalar generic_func(const Tensor &input, const std::vector<Scalar> &args){
 
 class test{
     public:
-    double A;
-
-    template<class T>
-    operator T () const{
-        return T(this->A);
-    };
+        
+        Tensor tff(const Tensor &T){
+            auto A = T.reshape(2,3,4);
+            return A;
+        }
 
 };
-        template <class BidirectionalIterator>
-        void reverse_perm(BidirectionalIterator first, BidirectionalIterator last,int N)
-        {
-          while ((first!=last)&&(first!=--last)) {
-            *first = (N-1) - *first;
-            *last = (N-1) - *last;
-            std::iter_swap (first,last);
-            ++first;
-          }
-          if(N%2) *first = (N-1) - *first;
-        }
 
 
 //-------------------------------------------
@@ -100,12 +88,70 @@ class MyOp2: public LinOp{
 
 int main(int argc, char *argv[]){
 
+    auto S00 = Storage(30);
+    cytnx_int64 ia = 5;
+    cytnx_int64 ib = 6;
+    Tensor T00 = Tensor::from_storage(S00).reshape(ia,ib);
+
+    return 0;
+
+    auto Arrr = Tensor({2,3,4});
+    auto Tnt = test();
+    Tnt.tff(Arrr);    
+    return 0;
+
+
+    auto bdi = Bond(2, BD_KET,{{1},{-1}});
+    auto bdo = bdi.clone().set_type(BD_BRA);
+    auto Hop = UniTensor({bdi,bdi,bdo,bdo},{},2);
+    
+
+    //Setting blocks:
+    Hop.get_blocks_()[0] += 0.25;
+    Hop.get_blocks_()[2] += 0.25;
+    Hop.get_blocks_()[1] = Tensor::from_storage(Storage({-1.,1.,1.,-1.})).reshape(2,2)*0.25;
+
+    print(Hop);
+    Hop.print_diagram();
+
+    //Evolution op:
+    auto Uop = linalg::ExpH(Hop);
+    print(Uop); 
+
+    
+    //MPS:
+    auto Ga = UniTensor({bdi,bdo,bdo*bdo},{},1);
+    auto Gb = UniTensor({bdi*bdi,bdo,bdo},{},2);
+
+    Ga.print_diagram();
+    Gb.print_diagram();
+
+    
+    auto La = UniTensor({bdi*bdi,bdo*bdo},{},1,Type.Double,Device.cpu,true);
+    
+    La.print_diagram();
+
+    exit(1); 
+
+    //Tensor sa = {1,1,1,2,3,4,3,5,2,4,2,5,5,4,3};
+    //Storage sa = va;
+    
+    Tensor sa = zeros({2,2,2,2});
+    Tensor sb = sa + 1;
+    sa(0,0) = sb(0,1,1,1);
+ 
+    
+           
+ 
+    cout << sa ;
+
+    exit(1);
 
     auto Tnnn = cytnx::arange(16).reshape(4,4);
     auto oout = cytnx::linalg::Svd_truncate(Tnnn,1);
     print(oout);
 
-
+ 
 
     exit(1);
     Scalar sccA = 3.44;
@@ -551,9 +597,6 @@ int main(int argc, char *argv[]){
 
     return 0;
 
-    auto tclass = test();
-    
-    tclass.A = 400;
 
     //cout << typeid(tclass.A).name();
     //cout << typeid(float(tclass)).name() << endl; 

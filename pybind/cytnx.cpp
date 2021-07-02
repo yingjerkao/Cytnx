@@ -442,9 +442,9 @@ PYBIND11_MODULE(cytnx,m){
     m.def("eye",&cytnx::identity
                   ,py::arg("Dim"),py::arg("dtype")=(unsigned int)(cytnx::Type.Double), py::arg("device")=(int)(cytnx::Device.cpu));
 
-    m.def("arange",[](const cytnx_uint64 &Nelem, const unsigned int &dtype, const int &device)->Tensor{
-                        return cytnx::arange(Nelem,dtype,device);
-                  },py::arg("size"),py::arg("dtype")=(unsigned int)(cytnx::Type.Double), py::arg("device")=(int)(cytnx::Device.cpu));
+    m.def("arange",[](const cytnx_uint64 &Nelem)->Tensor{
+                        return cytnx::arange(Nelem);
+                  },py::arg("size"));
 
     m.def("arange",[](const cytnx_double &start, const cytnx_double &end, const cytnx_double &step, const unsigned int &dtype, const int &device)->Tensor{
                         return cytnx::arange(start,end,step,dtype,device);
@@ -1735,12 +1735,12 @@ PYBIND11_MODULE(cytnx,m){
                 .def("get_blocks", [](const UniTensor &self){
                                         return self.get_blocks();
                                   })
-                .def("get_blocks_", [](const UniTensor &self){
-                                        return self.get_blocks_();
-                                  })
-                .def("get_blocks_", [](UniTensor &self){
-                                        return self.get_blocks_();
-                                  })
+                .def("get_blocks_", [](const UniTensor &self, const bool &slient){
+                                        return self.get_blocks_(slient);
+                                  },py::arg("slient")=false)
+                .def("get_blocks_", [](UniTensor &self, const bool &slient){
+                                        return self.get_blocks_(slient);
+                                  },py::arg("slient")=false)
                 .def("put_block", [](UniTensor &self, const cytnx::Tensor &in, const cytnx_uint64&idx){
                                         self.put_block(in,idx);
                                   },py::arg("in"),py::arg("idx")=(cytnx_uint64)(0))
@@ -2128,6 +2128,10 @@ PYBIND11_MODULE(cytnx,m){
     m_linalg.def("c_Lanczos_Gnd",[](LinOp *Hop, const double &CvgCrit, const bool &is_V, const Tensor &Tin, const bool &verbose, const cytnx_uint64 &maxiter){
                                     return cytnx::linalg::Lanczos_Gnd(Hop,CvgCrit,is_V,Tin,verbose,maxiter);
                                 });
+
+    m_linalg.def("Lstsq",[](const Tensor &A, const Tensor &b, const float &rcond){
+                                    return cytnx::linalg::Lstsq(A, b, rcond);
+                                },py::arg("A"),py::arg("b"),py::arg("rcond")=float(-1));               
 
     // [Submodule algo] 
     pybind11::module m_algo = m.def_submodule("algo","algorithm related.");

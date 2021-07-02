@@ -529,6 +529,7 @@ namespace cytnx{
 
         //cout << "perm" << endl;
         //cout << perm << endl;
+        //cout << new_shape << endl;
         if(new_shape.size()){ //exclude the case where only single element exists!
                         
             out->reshape_(new_shape); // remove size-1 axis
@@ -542,6 +543,8 @@ namespace cytnx{
                 }
             }
             out->permute_(perm);
+        }else{
+            out->reshape_({1}); // if it is only one element.
         }
             
          
@@ -587,6 +590,7 @@ namespace cytnx{
     }
     
     void Tensor_impl::set(const std::vector<cytnx::Accessor> &accessors, const boost::intrusive_ptr<Tensor_impl> &rhs){
+
         cytnx_error_msg(accessors.size() > this->_shape.size(), "%s", "The input indexes rank is out of range! (>Tensor's rank).");
 
 
@@ -622,42 +626,55 @@ namespace cytnx{
             acc[i].get_len_pos(curr_shape[i],get_shape[i],locators[i]);
         }
 
-        //permute input to currect pos 
-        std::vector<cytnx_int64> new_mapper(this->_mapper.begin(),this->_mapper.end());
-        std::vector<cytnx_uint64> new_shape;
-        std::vector<cytnx_int32> remove_id;
-        for(unsigned int i=0;i<get_shape.size();i++){
-            if(get_shape[i]==1) remove_id.push_back(this->_mapper[this->_invmapper[i]]);
-            else new_shape.push_back(get_shape[i]);
-        }
 
-        std::vector<cytnx_uint64> perm;
-        for(unsigned int i=0;i<new_mapper.size();i++){
-            perm.push_back(new_mapper[i]);
-            for(unsigned int j=0;j<remove_id.size();j++){
-                if(new_mapper[i]>remove_id[j]) perm.back()-=1;
-                else if(new_mapper[i]==remove_id[j]){ perm.pop_back(); break; }
+        /// checking if its scalar assign!
+        if(rhs->shape().size()==1 && rhs->storage().size()==1){
+            this->storage()._impl->SetElem_byShape_v2(rhs->storage()._impl,curr_shape,locators,Nunit,true);
+
+
+        }else{
+
+            for(cytnx_uint64 i=0;i<tmpidx;i++){
+                get_shape.push_back(curr_shape[acc.size()+i]);
             }
+
+            //std::cout << get_shape << endl;
+
+            //permute input to currect pos 
+            std::vector<cytnx_int64> new_mapper(this->_mapper.begin(),this->_mapper.end());
+            std::vector<cytnx_uint64> new_shape;
+            std::vector<cytnx_int32> remove_id;
+            for(unsigned int i=0;i<get_shape.size();i++){
+                if(get_shape[i]==1) remove_id.push_back(this->_mapper[this->_invmapper[i]]);
+                else new_shape.push_back(get_shape[i]);
+            }
+            
+            if(new_shape.size()==0) new_shape.push_back(1);
+
+            // use current size to infer rhs permutation.
+            std::vector<cytnx_uint64> perm;
+            for(unsigned int i=0;i<new_mapper.size();i++){
+                perm.push_back(new_mapper[i]);
+                for(unsigned int j=0;j<remove_id.size();j++){
+                    if(new_mapper[i]>remove_id[j]) perm.back()-=1;
+                    else if(new_mapper[i]==remove_id[j]){ perm.pop_back(); break; }
+                }
+            }
+
+            std::vector<cytnx_uint64> iperm(perm.size());
+            for(unsigned int i=0;i<iperm.size();i++)
+                iperm[perm[i]] = i;
+
+           
+            boost::intrusive_ptr<Tensor_impl> tmp;
+            tmp = rhs->permute(iperm)->contiguous();
+            cytnx_error_msg(new_shape != tmp->shape(), "[ERROR][Tensor.set_elems]%s","inconsistent shape");
+            this->storage()._impl->SetElem_byShape_v2(tmp->storage()._impl,curr_shape,locators,Nunit,false);
+
         }
+                
 
-        std::vector<cytnx_uint64> iperm(perm.size());
-        for(unsigned int i=0;i<iperm.size();i++)
-            iperm[perm[i]] = i;
-
-       
-        //fast solution:
-        boost::intrusive_ptr<Tensor_impl> tmp = rhs->permute(iperm)->contiguous();
-
-
-        // check size:
-        cytnx_error_msg(new_shape != tmp->shape(), "[ERROR][Tensor.set_elems]%s","inconsistent shape");
-
-
-        //boost::intrusive_ptr<Tensor_impl> out( new Tensor_impl());
-        //out->Init(get_shape,this->dtype(),this->device());
-
-        //this->storage()._impl->SetElem_byShape(rhs->storage()._impl,this->shape(),this->_mapper,get_shape,locators,false);
-        this->storage()._impl->SetElem_byShape_v2(tmp->storage()._impl,curr_shape,locators,Nunit,false);
+  
     }
 
     template<class T>
@@ -708,7 +725,7 @@ namespace cytnx{
  
         //call storage
         Storage tmp(1,Type.c_typename_to_id(typeid(T).name()),this->device());
-        tmp.at<T>(0) = rc;
+        tmp.set_item(0,rc);
         this->storage()._impl->SetElem_byShape_v2(tmp._impl,curr_shape,locators,Nunit,true);
         
     }
@@ -723,7 +740,7 @@ namespace cytnx{
     template void Tensor_impl::set<cytnx_int16>(const std::vector<cytnx::Accessor> &, const cytnx_int16&);
     template void Tensor_impl::set<cytnx_uint16>(const std::vector<cytnx::Accessor> &, const cytnx_uint16&);
     template void Tensor_impl::set<cytnx_bool>(const std::vector<cytnx::Accessor> &, const cytnx_bool&);
-
+    template void Tensor_impl::set<Scalar>(const std::vector<cytnx::Accessor> &, const Scalar&);
 
 
 

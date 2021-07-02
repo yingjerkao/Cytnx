@@ -589,6 +589,17 @@ namespace cytnx{
             Tensor(const Tensor &rhs){
                 _impl = rhs._impl;
             }
+
+            /*
+            template<class Tp>
+            Tensor(const std::initializer_list<Tp> &rhs){
+                Storage stmp = std::vector<Tp>(rhs);
+                boost::intrusive_ptr<Tensor_impl> tmp(new Tensor_impl());
+                tmp->Init(stmp);
+                this->_impl = tmp;
+            }
+            */
+
             Tensor& operator=(const Tensor &rhs){
                 _impl = rhs._impl;
                 return *this;
@@ -897,14 +908,14 @@ namespace cytnx{
             #### output>
             \verbinclude example/Tensor/reshape.py.out
             */
-            Tensor reshape(const std::vector<cytnx_int64> &new_shape){
+            Tensor reshape(const std::vector<cytnx_int64> &new_shape) const {
                 Tensor out;
                 out._impl = this->_impl->reshape(new_shape);
                 return out;
             }
             /// @cond
             template<class ... Ts>
-            Tensor reshape(const cytnx_int64 &e1, const Ts&...elems){
+            Tensor reshape(const cytnx_int64 &e1, const Ts&...elems) const{
                 std::vector<cytnx_int64> argv = dynamic_arg_int64_resolver(e1,elems...);
                 return this->reshape(argv);
             }
