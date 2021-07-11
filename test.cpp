@@ -88,10 +88,33 @@ class MyOp2: public LinOp{
 
 int main(int argc, char *argv[]){
 
+    auto Trt = arange(30).reshape(1,30);
+    
+    auto uTrt = UniTensor(Trt,1);
+
+    std::cout << linalg::Svd(uTrt);
+
+    return 0;
+
+    std::complex<double> j = {0,1};
+    cout << j << endl;
+    auto Sx = physics::spin(0.5,'x');
+    auto Sy = physics::spin(0.5,'y');
+    auto Sp = Sx + j*Sy;
+    auto Sm = Sx - j*Sy;
+    cout << Sp <<endl;
+    return 0;
+
+
     auto S00 = Storage(30);
     cytnx_int64 ia = 5;
     cytnx_int64 ib = 6;
     Tensor T00 = Tensor::from_storage(S00).reshape(ia,ib);
+
+    T00 = T00.reshape(5,3,2);
+
+    T00 = T00.reshape(30);
+
 
     return 0;
 
