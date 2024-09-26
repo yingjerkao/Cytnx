@@ -133,12 +133,25 @@ class CMakeBuild(build_ext):
         #print(">>>!!!")
         ""
 
+f = open("version.cmake","r")
+ver=""
+for line in f.readlines():
+    if "MAJOR" in line:
+        ver+=( (line.split("MAJOR")[-1]).split(")")[0] ).strip();
+        ver+=".";
+    elif "MINOR" in line:
+        ver+=( (line.split("MINOR")[-1]).split(")")[0] ).strip();
+        ver+=".";
+    elif "PATCH" in line:
+        ver+=( (line.split("PATCH")[-1]).split(")")[0] ).strip();
+
+f.close()
 
 
 setup(
     name='cytnx',
-    version='0.7',
-    maintainer='Kai-Hsin Wu, Yen-Hsin Wu',
+    version=ver,
+    maintainer='Kai-Hsin Wu, Chang-Teng Lin, Ke Hsu',
     maintainer_email="kaihsinwu@gmail.com",
     description='Project Cytnx',
     long_description="""This package provides cytnx: A Cross-section of Python & C++,Tensor network library """,

@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+home = str(Path.home())
+sys.path.append(home + '/Cytnx_lib')
 from cytnx import *
 
 
@@ -18,4 +22,3 @@ for i in range(10):
 S2r = S2.imag()
 print(S2)
 print(S2r)
-

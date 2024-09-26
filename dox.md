@@ -1,16 +1,10 @@
 # Cytnx
 
-## Stable Version:
-    [v0.7.2](https://github.com/kaihsin/Cytnx/tree/v0.7.2a)
- 
-
-
-
 ## Feature:
 
 ### Python x C++
-    Benefit from both side. 
-    One can do simple prototype on python side 
+    Benefit from both side.
+    One can do simple prototype on python side
     and easy transfer to C++ with small effort!
 
 
@@ -21,7 +15,7 @@
     cytnx::Tensor A({3,4,5},cytnx::Type.Double,cytnx::Device.cpu)
 
 
-    
+
 ```
 
 
@@ -35,7 +29,7 @@
 
 ```
 
-### 1. All the Storage and Tensor can now have mulitple type support. 
+### 1. All the Storage and Tensor can now have mulitple type support.
     The avaliable types are :
 
     | cytnx type       | c++ type             | Type object
@@ -59,16 +53,16 @@
 ## Objects:
     * \link cytnx::Storage Storage \endlink   [binded]
     * \link cytnx::Tensor Tensor \endlink   [binded]
-    * \link cytnx::Bond Bond \endlink     [binded] 
+    * \link cytnx::Bond Bond \endlink     [binded]
     * \link cytnx::Accessor Accessor \endlink [c++ only]
     * \link cytnx::Symmetry Symmetry \endlink [binded]
-    * \link cytnx::CyTensor CyTensor \endlink [binded]
+    * \link cytnx::UniTensor UniTensor \endlink [binded]
     * \link cytnx::Network Network \endlink [binded]
 
-## linear algebra functions: 
+## linear algebra functions:
     See \link cytnx::linalg cytnx::linalg \endlink for further details
 
-      func    |   inplace | CPU | GPU  | callby tn 
+      func    |   inplace | CPU | GPU  | callby tn
     ----------|-----------|-----|------|-----------
       \link cytnx::linalg::Add Add\endlink     |   x       |  Y  |  Y   |    Y
       \link cytnx::linalg::Sub Sub\endlink     |   x       |  Y  |  Y   |    Y
@@ -85,12 +79,12 @@
       *\link cytnx::linalg::Svd_truncate Svd_truncate\endlink     |   x       |  Y  |  Y   |    N
       \link cytnx::linalg::InvM InvM\endlink     |   \link cytnx::linalg::InvM_ InvM_\endlink    |  Y  |  Y   |    Y
       \link cytnx::linalg::Inv Inv\endlink     |   \link cytnx::linalg::Inv_ Inv_\endlink    |  Y  |  Y   |    Y
-      \link cytnx::linalg::Conj Conj\endlink    |   \link cytnx::linalg::Conj_ Conj_\endlink   |  Y  |  Y   |    Y 
+      \link cytnx::linalg::Conj Conj\endlink    |   \link cytnx::linalg::Conj_ Conj_\endlink   |  Y  |  Y   |    Y
       \link cytnx::linalg::Exp Exp\endlink     |   \link cytnx::linalg::Exp_ Exp_\endlink    |  Y  |  Y   |    Y
       \link cytnx::linalg::Expf Expf\endlink     |   \link cytnx::linalg::Expf_ Expf_\endlink    |  Y  |  Y   |    Y
-      *\link cytnx::linalg::ExpH ExpH\endlink       |   x   |  Y  |  Y   |    N 
-      *\link cytnx::linalg::ExpM ExpM\endlink       |   x   |  Y  |  Y   |    N 
-      \link cytnx::linalg::Eigh Eigh\endlink    |   x       |  Y  |  Y   |    Y 
+      *\link cytnx::linalg::ExpH ExpH\endlink       |   x   |  Y  |  Y   |    N
+      *\link cytnx::linalg::ExpM ExpM\endlink       |   x   |  Y  |  Y   |    N
+      \link cytnx::linalg::Eigh Eigh\endlink    |   x       |  Y  |  Y   |    Y
       \link cytnx::linalg::Matmul Matmul\endlink  |   x       |  Y  |  Y   |    N
       \link cytnx::linalg::Diag Diag\endlink    |   x       |  Y  |  Y   |    N
       *\link cytnx::linalg::Tensordot Tensordot\endlink | x | Y | Y | N
@@ -98,10 +92,10 @@
       \link cytnx::linalg::Kron Kron\endlink  |   x       | Y   | N   |   N
       \link cytnx::linalg::Norm Norm\endlink  |   x       | Y   | Y   |   Y
       \link cytnx::linalg::Vectordot Vectordot\endlink    |   x       |  Y  | .Y   |    N
-      \link cytnx::linalg::Tridiag Tridiag\endlink    | x | Y | N | N  
+      \link cytnx::linalg::Tridiag Tridiag\endlink    | x | Y | N | N
       *\link cytnx::linalg::Dot Dot\endlink | x | Y | Y | N
-      \link cytnx::linalg::Eig Eig\endlink    |   x       |  Y  |  N   |    Y 
-      \link cytnx::linalg::Pow Pow\endlink    |   \link cytnx::linalg::Pow_ Pow_\endlink       |  Y  |  Y   |    Y 
+      \link cytnx::linalg::Eig Eig\endlink    |   x       |  Y  |  N   |    Y
+      \link cytnx::linalg::Pow Pow\endlink    |   \link cytnx::linalg::Pow_ Pow_\endlink       |  Y  |  Y   |    Y
       \link cytnx::linalg::Abs Abs\endlink    |   \link cytnx::linalg::Abs_ Abs_\endlink       |  Y  |  N   |    Y
       \link cytnx::linalg::Qr Qr\endlink    |  x       |  Y  |  N   |    N
       \link cytnx::linalg::Qdr Qdr\endlink    |  x       |  Y  |  N   |    N
@@ -109,28 +103,28 @@
       \link cytnx::linalg::Max Max\endlink    |  x       |  Y  |  N   |    Y
       *\link cytnx::linalg::Trace Trace\endlink | x | Y | N | N
 
-    
-    iterative solver
-    
-        \link cytnx::linalg::Lanczos_ER Lanczos_ER\endlink 
-    
 
-    * this is a high level linalg 
+    iterative solver
+
+        \link cytnx::linalg::Lanczos_ER Lanczos_ER\endlink
+
+
+    * this is a high level linalg
 
     ^ this is temporary disable
 
     . this is floating point type only
 
-## Container Generators 
+## Container Generators
     Tensor: \link cytnx::zeros zeros()\endlink, \link cytnx::ones ones()\endlink, \link cytnx::arange arange()\endlink, \link cytnx::identity identity()\endlink, \link cytnx::eye eye()\endlink,
 
 ## Physics Category
     Tensor: \link cytnx::physics::spin spin()\endlink  \link cytnx::physics::pauli pauli()\endlink
 
-## Random 
+## Random
     See \link cytnx::random cytnx::random \endlink for further details
 
-      func    | Tn  | Stor | CPU | GPU  
+      func    | Tn  | Stor | CPU | GPU
     ----------|-----|------|-----|-----------
     *\link cytnx::random::Make_normal Make_normal\endlink   |  Y  |  Y   | Y   |  Y
     ^\link cytnx::random::normal normal\endlink   |  Y  |  x   | Y   |  Y
@@ -141,20 +135,20 @@
 
     [Note] The difference of initializer and generator is that initializer is used to initialize the Tensor, and generator generates a new Tensor.
 
-## conda install  
+## conda install
     [Currently Linux only]
 
     without CUDA
     * python 3.6/3.7/3.8: conda install -c kaihsinwu cytnx
-    
+
     with CUDA
     * python 3.6/3.7/3.8: conda install -c kaihsinwu cytnx_cuda
 
 ## Some snippets:
 
 ### Storage
-    * Memory container with GPU/CPU support. 
-      maintain type conversions (type casting btwn Storages) 
+    * Memory container with GPU/CPU support.
+      maintain type conversions (type casting btwn Storages)
       and moving btwn devices.
     * Generic type object, the behavior is very similar to python.
 ```{.cpp}
@@ -163,9 +157,9 @@
         for(int i=0;i<400;i++)
             A.at<double>(i) = i;
 
-        Storage B = A; // A and B share same memory, this is similar as python 
-        
-        Storage C = A.to(Device.cuda+0); 
+        Storage B = A; // A and B share same memory, this is similar as python
+
+        Storage C = A.to(Device.cuda+0);
 
 ```
 
@@ -218,34 +212,39 @@
 
         typedef Accessor ac;
         Tensor A({3,4,5},Type.Double);
-        Tensor out = A(0,":","1:4"); 
-        // equivalent to python: out = A[0,:,1:4]    
+        Tensor out = A(0,":","1:4");
+        // equivalent to python: out = A[0,:,1:4]
 
 ```
 
 
-     
+
 ## Fast Examples
-    
+
     See test.cpp for using C++ .
-    See test.py for using python  
+    See test.py for using python
 
-## Developer
+## Developers & Maintainers
 
-    Kai-Hsin Wu (Boston Univ.) kaihsinwu@gmail.com 
+    [Creator and Project manager]
+    Kai-Hsin Wu (Boston Univ.) kaihsinwu@gmail.com
+
+    Chang Teng Lin (NTU, Taiwan): major maintainer and developer
+    Ke Hsu (NTU, Taiwan): major maintainer and developer
+    Hao Ti (NTU, Taiwan): documentation and linalg
+    Ying-Jer Kao (NTU, Taiwan): setuptool, cmake
+
 
 ## Contributors
 
-    Ying-Jer Kao (NTU, Taiwan): setuptool, cmake
-    Yen-Hsin Wu (NTU, Taiwan): Network optimization
-    Yu-Hsueh Chen (NTU, Taiwan): example, and testing
-    Po-Kwan Wu (OSU): Icon optimization    
-    Wen-Han Kao (UMN, USA) : testing of conda install 
-    Ke Hsu (NTU, Taiwan): Lstsq, linalg funcitons and examples  
+    Yen-Hsin Wu (NTU, Taiwan)
+    Po-Kwan Wu (OSU)
+    Wen-Han Kao (UMN, USA)
+    Yu-Hsueh Chen (NTU, Taiwan)
+    PoChung Chen  (NCHU, Taiwan)
+
 
 ## Refereces:
 
     * example/DMRG:
         https://www.tensors.net/dmrg
-
-

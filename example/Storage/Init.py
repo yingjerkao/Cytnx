@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+home = str(Path.home())
+sys.path.append(home + '/Cytnx_lib')
 from cytnx import *
 
 A = Storage(10);
@@ -11,5 +15,3 @@ print(C)
 
 D = Storage()
 D.Init(10,dtype=Type.Double,device=Device.cpu)
-
-

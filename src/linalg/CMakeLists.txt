@@ -1,7 +1,13 @@
 target_sources_local(cytnx
     PRIVATE
-    linalg_internal_interface.hpp
+    #linalg_internal_interface.hpp
     Add.cpp
+    Axpy.cpp
+    Ger.cpp
+    Arnoldi.cpp
+    Axpy.cpp
+    Ger.cpp
+    iAdd.cpp
     Min.cpp
     Max.cpp
     Sum.cpp
@@ -10,6 +16,7 @@ target_sources_local(cytnx
     Cpr.cpp
     Diag.cpp
     Div.cpp
+    iDiv.cpp
     Det.cpp
     Eig.cpp
     Eigh.cpp
@@ -29,14 +36,21 @@ target_sources_local(cytnx
     Matmul.cpp
     Matmul_dg.cpp
     Mul.cpp
+    iMul.cpp
     Mod.cpp
     Outer.cpp
     Kron.cpp
     Trace.cpp
     Sub.cpp
+    iSub.cpp
     Svd.cpp
+    Gesvd.cpp
     Svd_truncate.cpp
+    Gesvd_truncate.cpp
+    Gemm.cpp
+    Gemm_Batch.cpp
     Tensordot.cpp
+    Directsum.cpp
     Tensordot_dg.cpp
     Vectordot.cpp
     Pow.cpp
@@ -47,13 +61,16 @@ target_sources_local(cytnx
     Dot.cpp
     Norm.cpp
     Tridiag.cpp
+    Lanczos.cpp
     Lanczos_ER.cpp
+    Lanczos_Exp.cpp
     Lanczos_Gnd.cpp
+    Lanczos_Gnd_Ut.cpp
     Lstsq.cpp
-    linalg_internal_interface.cpp
+    #linalg_internal_interface.cpp
 )
 
-add_subdirectory(linalg_internal_cpu)
-if(USE_CUDA)
-  add_subdirectory(linalg_internal_gpu)
-endif()
+#add_subdirectory(linalg_internal_cpu)
+#if(USE_CUDA)
+#  add_subdirectory(linalg_internal_gpu)
+#endif()

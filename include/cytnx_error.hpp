@@ -1,461 +1,476 @@
 #ifndef _H_cytnx_error_
 #define _H_cytnx_error_
 
-    #include <cstdio>
-    #include <cstdlib>
-    #include <cstring>
-    #include <stdarg.h>
-
-    #include <iostream>
-    #include <stdexcept>
-
-    #ifdef _MSC_VER
-     #define __PRETTY_FUNCTION__ __FUNCTION__
-    #endif
-
-
-
-    #define cytnx_error_msg(is_true, format, ...) {error_msg ( __PRETTY_FUNCTION__,  __FILE__, __LINE__, (is_true), (format), __VA_ARGS__);}
-    static inline void error_msg( char const *const func, const char *const file, int const line, bool is_true, char const* format, ...){
-      try{
-        if (is_true)
-        {
-          va_list args;
-          char output_str[1024];
-          char msg[512];
-          va_start(args, format);
-          vsprintf(msg, format, args);
-          sprintf(output_str, "\n# Cytnx error occur at %s\n# error: %s\n# file : %s (%d)", func, msg, file, line) ;
-          va_end(args);
-          throw std::logic_error(output_str);
-        }
-      }catch(const char *output_msg){
-        std::cerr << output_msg << std::endl;
-      }
-
-    }
-    #define cytnx_warning_msg(is_true, format, ...) {warning_msg ( __PRETTY_FUNCTION__,  __FILE__, __LINE__, (is_true), (format), __VA_ARGS__);}
-    static inline void warning_msg( char const *const func, const char *const file, int const line, bool is_true, char const* format, ...){
-      if (is_true)
-      {
-        va_list args;
-        char output_str[1024];
-        char msg[512];
-        va_start(args, format);
-        vsprintf(msg, format, args);
-        sprintf(output_str, "\n# Cytnx warning occur at %s\n# warning: %s\n# file : %s (%d)", func, msg, file, line) ;
-        va_end(args);
-        std::cerr << output_str << std::endl;
-      }
-    }
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <stdarg.h>
+
+#include <iostream>
+#include <stdexcept>
+
+#ifdef _MSC_VER
+  #define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+
+#define cytnx_error_msg(is_true, format, ...)                                               \
+  {                                                                                         \
+    if (is_true)                                                                            \
+      error_msg(__PRETTY_FUNCTION__, __FILE__, __LINE__, (is_true), (format), __VA_ARGS__); \
+  }
+static inline void error_msg(char const *const func, const char *const file, int const line,
+                             bool is_true, char const *format, ...) {
+  // try {
+  if (is_true) {
+    va_list args;
+    char output_str[1024];
+    char msg[512];
+    va_start(args, format);
+    vsprintf(msg, format, args);
+    sprintf(output_str, "\n# Cytnx error occur at %s\n# error: %s\n# file : %s (%d)", func, msg,
+            file, line);
+    va_end(args);
+    // std::cerr << output_str << std::endl;
+    throw std::logic_error(output_str);
+  }
+  // } catch (const char *output_msg) {
+  //   std::cerr << output_msg << std::endl;
+  // }
+}
+#define cytnx_warning_msg(is_true, format, ...)                                               \
+  {                                                                                           \
+    if (is_true)                                                                              \
+      warning_msg(__PRETTY_FUNCTION__, __FILE__, __LINE__, (is_true), (format), __VA_ARGS__); \
+  }
+static inline void warning_msg(char const *const func, const char *const file, int const line,
+                               bool is_true, char const *format, ...) {
+  if (is_true) {
+    va_list args;
+    char output_str[1024];
+    char msg[512];
+    va_start(args, format);
+    vsprintf(msg, format, args);
+    sprintf(output_str, "\n# Cytnx warning occur at %s\n# warning: %s\n# file : %s (%d)", func, msg,
+            file, line);
+    va_end(args);
+    std::cerr << output_str << std::endl;
+  }
+}
+
+#if defined(UNI_GPU)
+
+  #include <cuda.h>
+  #include <cuda_runtime.h>
+  #include <cublas_v2.h>
+  #include <cusolverDn.h>
+  #include <cuComplex.h>
+  #include <curand.h>
+
+  #if defined(UNI_CUTENSOR)
+    #include <cutensor.h>
+  #endif
+
+  #ifdef __DRIVER_TYPES_H__
+static const char *_cudaGetErrorEnum(cudaError_t error) {
+  switch (error) {
+    case cudaSuccess:
+      return "cudaSuccess";
+
+    case cudaErrorMissingConfiguration:
+      return "cudaErrorMissingConfiguration";
+
+    case cudaErrorMemoryAllocation:
+      return "cudaErrorMemoryAllocation";
+
+    case cudaErrorInitializationError:
+      return "cudaErrorInitializationError";
+
+    case cudaErrorLaunchFailure:
+      return "cudaErrorLaunchFailure";
+
+    case cudaErrorPriorLaunchFailure:
+      return "cudaErrorPriorLaunchFailure";
+
+    case cudaErrorLaunchTimeout:
+      return "cudaErrorLaunchTimeout";
+
+    case cudaErrorLaunchOutOfResources:
+      return "cudaErrorLaunchOutOfResources";
+
+    case cudaErrorInvalidDeviceFunction:
+      return "cudaErrorInvalidDeviceFunction";
+
+    case cudaErrorInvalidConfiguration:
+      return "cudaErrorInvalidConfiguration";
 
+    case cudaErrorInvalidDevice:
+      return "cudaErrorInvalidDevice";
 
-    #if defined(UNI_GPU)
+    case cudaErrorInvalidValue:
+      return "cudaErrorInvalidValue";
 
-    #include <cuda.h>
-    #include <cuda_runtime.h>
-    #include <cublas_v2.h>
-    #include <cusolverDn.h>
-    #include <cuComplex.h>
-    #include <curand.h>
+    case cudaErrorInvalidPitchValue:
+      return "cudaErrorInvalidPitchValue";
 
-    #ifdef __DRIVER_TYPES_H__
-    static const char *_cudaGetErrorEnum(cudaError_t error)
-    {
-        switch (error)
-        {
-            case cudaSuccess:
-                return "cudaSuccess";
+    case cudaErrorInvalidSymbol:
+      return "cudaErrorInvalidSymbol";
 
-            case cudaErrorMissingConfiguration:
-                return "cudaErrorMissingConfiguration";
+    case cudaErrorMapBufferObjectFailed:
+      return "cudaErrorMapBufferObjectFailed";
 
-            case cudaErrorMemoryAllocation:
-                return "cudaErrorMemoryAllocation";
+    case cudaErrorUnmapBufferObjectFailed:
+      return "cudaErrorUnmapBufferObjectFailed";
 
-            case cudaErrorInitializationError:
-                return "cudaErrorInitializationError";
+    case cudaErrorInvalidHostPointer:
+      return "cudaErrorInvalidHostPointer";
 
-            case cudaErrorLaunchFailure:
-                return "cudaErrorLaunchFailure";
+    case cudaErrorInvalidDevicePointer:
+      return "cudaErrorInvalidDevicePointer";
 
-            case cudaErrorPriorLaunchFailure:
-                return "cudaErrorPriorLaunchFailure";
+    case cudaErrorInvalidTexture:
+      return "cudaErrorInvalidTexture";
 
-            case cudaErrorLaunchTimeout:
-                return "cudaErrorLaunchTimeout";
+    case cudaErrorInvalidTextureBinding:
+      return "cudaErrorInvalidTextureBinding";
 
-            case cudaErrorLaunchOutOfResources:
-                return "cudaErrorLaunchOutOfResources";
+    case cudaErrorInvalidChannelDescriptor:
+      return "cudaErrorInvalidChannelDescriptor";
 
-            case cudaErrorInvalidDeviceFunction:
-                return "cudaErrorInvalidDeviceFunction";
+    case cudaErrorInvalidMemcpyDirection:
+      return "cudaErrorInvalidMemcpyDirection";
 
-            case cudaErrorInvalidConfiguration:
-                return "cudaErrorInvalidConfiguration";
+    case cudaErrorAddressOfConstant:
+      return "cudaErrorAddressOfConstant";
 
-            case cudaErrorInvalidDevice:
-                return "cudaErrorInvalidDevice";
+    case cudaErrorTextureFetchFailed:
+      return "cudaErrorTextureFetchFailed";
 
-            case cudaErrorInvalidValue:
-                return "cudaErrorInvalidValue";
+    case cudaErrorTextureNotBound:
+      return "cudaErrorTextureNotBound";
 
-            case cudaErrorInvalidPitchValue:
-                return "cudaErrorInvalidPitchValue";
+    case cudaErrorSynchronizationError:
+      return "cudaErrorSynchronizationError";
 
-            case cudaErrorInvalidSymbol:
-                return "cudaErrorInvalidSymbol";
+    case cudaErrorInvalidFilterSetting:
+      return "cudaErrorInvalidFilterSetting";
 
-            case cudaErrorMapBufferObjectFailed:
-                return "cudaErrorMapBufferObjectFailed";
+    case cudaErrorInvalidNormSetting:
+      return "cudaErrorInvalidNormSetting";
 
-            case cudaErrorUnmapBufferObjectFailed:
-                return "cudaErrorUnmapBufferObjectFailed";
+    case cudaErrorMixedDeviceExecution:
+      return "cudaErrorMixedDeviceExecution";
 
-            case cudaErrorInvalidHostPointer:
-                return "cudaErrorInvalidHostPointer";
+    case cudaErrorCudartUnloading:
+      return "cudaErrorCudartUnloading";
 
-            case cudaErrorInvalidDevicePointer:
-                return "cudaErrorInvalidDevicePointer";
+    case cudaErrorUnknown:
+      return "cudaErrorUnknown";
 
-            case cudaErrorInvalidTexture:
-                return "cudaErrorInvalidTexture";
+    case cudaErrorNotYetImplemented:
+      return "cudaErrorNotYetImplemented";
 
-            case cudaErrorInvalidTextureBinding:
-                return "cudaErrorInvalidTextureBinding";
+    case cudaErrorMemoryValueTooLarge:
+      return "cudaErrorMemoryValueTooLarge";
 
-            case cudaErrorInvalidChannelDescriptor:
-                return "cudaErrorInvalidChannelDescriptor";
+    case cudaErrorInvalidResourceHandle:
+      return "cudaErrorInvalidResourceHandle";
 
-            case cudaErrorInvalidMemcpyDirection:
-                return "cudaErrorInvalidMemcpyDirection";
+    case cudaErrorNotReady:
+      return "cudaErrorNotReady";
 
-            case cudaErrorAddressOfConstant:
-                return "cudaErrorAddressOfConstant";
+    case cudaErrorInsufficientDriver:
+      return "cudaErrorInsufficientDriver";
 
-            case cudaErrorTextureFetchFailed:
-                return "cudaErrorTextureFetchFailed";
+    case cudaErrorSetOnActiveProcess:
+      return "cudaErrorSetOnActiveProcess";
 
-            case cudaErrorTextureNotBound:
-                return "cudaErrorTextureNotBound";
+    case cudaErrorInvalidSurface:
+      return "cudaErrorInvalidSurface";
 
-            case cudaErrorSynchronizationError:
-                return "cudaErrorSynchronizationError";
+    case cudaErrorNoDevice:
+      return "cudaErrorNoDevice";
 
-            case cudaErrorInvalidFilterSetting:
-                return "cudaErrorInvalidFilterSetting";
+    case cudaErrorECCUncorrectable:
+      return "cudaErrorECCUncorrectable";
 
-            case cudaErrorInvalidNormSetting:
-                return "cudaErrorInvalidNormSetting";
+    case cudaErrorSharedObjectSymbolNotFound:
+      return "cudaErrorSharedObjectSymbolNotFound";
 
-            case cudaErrorMixedDeviceExecution:
-                return "cudaErrorMixedDeviceExecution";
+    case cudaErrorSharedObjectInitFailed:
+      return "cudaErrorSharedObjectInitFailed";
 
-            case cudaErrorCudartUnloading:
-                return "cudaErrorCudartUnloading";
+    case cudaErrorUnsupportedLimit:
+      return "cudaErrorUnsupportedLimit";
 
-            case cudaErrorUnknown:
-                return "cudaErrorUnknown";
+    case cudaErrorDuplicateVariableName:
+      return "cudaErrorDuplicateVariableName";
 
-            case cudaErrorNotYetImplemented:
-                return "cudaErrorNotYetImplemented";
+    case cudaErrorDuplicateTextureName:
+      return "cudaErrorDuplicateTextureName";
 
-            case cudaErrorMemoryValueTooLarge:
-                return "cudaErrorMemoryValueTooLarge";
+    case cudaErrorDuplicateSurfaceName:
+      return "cudaErrorDuplicateSurfaceName";
 
-            case cudaErrorInvalidResourceHandle:
-                return "cudaErrorInvalidResourceHandle";
+    case cudaErrorDevicesUnavailable:
+      return "cudaErrorDevicesUnavailable";
 
-            case cudaErrorNotReady:
-                return "cudaErrorNotReady";
+    case cudaErrorInvalidKernelImage:
+      return "cudaErrorInvalidKernelImage";
 
-            case cudaErrorInsufficientDriver:
-                return "cudaErrorInsufficientDriver";
+    case cudaErrorNoKernelImageForDevice:
+      return "cudaErrorNoKernelImageForDevice";
 
-            case cudaErrorSetOnActiveProcess:
-                return "cudaErrorSetOnActiveProcess";
+    case cudaErrorIncompatibleDriverContext:
+      return "cudaErrorIncompatibleDriverContext";
 
-            case cudaErrorInvalidSurface:
-                return "cudaErrorInvalidSurface";
+    case cudaErrorPeerAccessAlreadyEnabled:
+      return "cudaErrorPeerAccessAlreadyEnabled";
 
-            case cudaErrorNoDevice:
-                return "cudaErrorNoDevice";
+    case cudaErrorPeerAccessNotEnabled:
+      return "cudaErrorPeerAccessNotEnabled";
 
-            case cudaErrorECCUncorrectable:
-                return "cudaErrorECCUncorrectable";
+    case cudaErrorDeviceAlreadyInUse:
+      return "cudaErrorDeviceAlreadyInUse";
 
-            case cudaErrorSharedObjectSymbolNotFound:
-                return "cudaErrorSharedObjectSymbolNotFound";
+    case cudaErrorProfilerDisabled:
+      return "cudaErrorProfilerDisabled";
 
-            case cudaErrorSharedObjectInitFailed:
-                return "cudaErrorSharedObjectInitFailed";
+    case cudaErrorProfilerNotInitialized:
+      return "cudaErrorProfilerNotInitialized";
 
-            case cudaErrorUnsupportedLimit:
-                return "cudaErrorUnsupportedLimit";
+    case cudaErrorProfilerAlreadyStarted:
+      return "cudaErrorProfilerAlreadyStarted";
 
-            case cudaErrorDuplicateVariableName:
-                return "cudaErrorDuplicateVariableName";
+    case cudaErrorProfilerAlreadyStopped:
+      return "cudaErrorProfilerAlreadyStopped";
 
-            case cudaErrorDuplicateTextureName:
-                return "cudaErrorDuplicateTextureName";
+    /* Since CUDA 4.0*/
+    case cudaErrorAssert:
+      return "cudaErrorAssert";
 
-            case cudaErrorDuplicateSurfaceName:
-                return "cudaErrorDuplicateSurfaceName";
+    case cudaErrorTooManyPeers:
+      return "cudaErrorTooManyPeers";
 
-            case cudaErrorDevicesUnavailable:
-                return "cudaErrorDevicesUnavailable";
+    case cudaErrorHostMemoryAlreadyRegistered:
+      return "cudaErrorHostMemoryAlreadyRegistered";
 
-            case cudaErrorInvalidKernelImage:
-                return "cudaErrorInvalidKernelImage";
+    case cudaErrorHostMemoryNotRegistered:
+      return "cudaErrorHostMemoryNotRegistered";
 
-            case cudaErrorNoKernelImageForDevice:
-                return "cudaErrorNoKernelImageForDevice";
+    /* Since CUDA 5.0 */
+    case cudaErrorOperatingSystem:
+      return "cudaErrorOperatingSystem";
 
-            case cudaErrorIncompatibleDriverContext:
-                return "cudaErrorIncompatibleDriverContext";
+    case cudaErrorPeerAccessUnsupported:
+      return "cudaErrorPeerAccessUnsupported";
 
-            case cudaErrorPeerAccessAlreadyEnabled:
-                return "cudaErrorPeerAccessAlreadyEnabled";
+    case cudaErrorLaunchMaxDepthExceeded:
+      return "cudaErrorLaunchMaxDepthExceeded";
 
-            case cudaErrorPeerAccessNotEnabled:
-                return "cudaErrorPeerAccessNotEnabled";
+    case cudaErrorLaunchFileScopedTex:
+      return "cudaErrorLaunchFileScopedTex";
 
-            case cudaErrorDeviceAlreadyInUse:
-                return "cudaErrorDeviceAlreadyInUse";
+    case cudaErrorLaunchFileScopedSurf:
+      return "cudaErrorLaunchFileScopedSurf";
 
-            case cudaErrorProfilerDisabled:
-                return "cudaErrorProfilerDisabled";
+    case cudaErrorSyncDepthExceeded:
+      return "cudaErrorSyncDepthExceeded";
 
-            case cudaErrorProfilerNotInitialized:
-                return "cudaErrorProfilerNotInitialized";
+    case cudaErrorLaunchPendingCountExceeded:
+      return "cudaErrorLaunchPendingCountExceeded";
 
-            case cudaErrorProfilerAlreadyStarted:
-                return "cudaErrorProfilerAlreadyStarted";
+    case cudaErrorNotPermitted:
+      return "cudaErrorNotPermitted";
 
-            case cudaErrorProfilerAlreadyStopped:
-                return "cudaErrorProfilerAlreadyStopped";
+    case cudaErrorNotSupported:
+      return "cudaErrorNotSupported";
 
-            /* Since CUDA 4.0*/
-            case cudaErrorAssert:
-                return "cudaErrorAssert";
+    /* Since CUDA 6.0 */
+    case cudaErrorHardwareStackError:
+      return "cudaErrorHardwareStackError";
 
-            case cudaErrorTooManyPeers:
-                return "cudaErrorTooManyPeers";
+    case cudaErrorIllegalInstruction:
+      return "cudaErrorIllegalInstruction";
 
-            case cudaErrorHostMemoryAlreadyRegistered:
-                return "cudaErrorHostMemoryAlreadyRegistered";
+    case cudaErrorMisalignedAddress:
+      return "cudaErrorMisalignedAddress";
 
-            case cudaErrorHostMemoryNotRegistered:
-                return "cudaErrorHostMemoryNotRegistered";
+    case cudaErrorInvalidAddressSpace:
+      return "cudaErrorInvalidAddressSpace";
 
-            /* Since CUDA 5.0 */
-            case cudaErrorOperatingSystem:
-                return "cudaErrorOperatingSystem";
+    case cudaErrorInvalidPc:
+      return "cudaErrorInvalidPc";
 
-            case cudaErrorPeerAccessUnsupported:
-                return "cudaErrorPeerAccessUnsupported";
+    case cudaErrorIllegalAddress:
+      return "cudaErrorIllegalAddress";
 
-            case cudaErrorLaunchMaxDepthExceeded:
-                return "cudaErrorLaunchMaxDepthExceeded";
+    /* Since CUDA 6.5*/
+    case cudaErrorInvalidPtx:
+      return "cudaErrorInvalidPtx";
 
-            case cudaErrorLaunchFileScopedTex:
-                return "cudaErrorLaunchFileScopedTex";
+    case cudaErrorInvalidGraphicsContext:
+      return "cudaErrorInvalidGraphicsContext";
 
-            case cudaErrorLaunchFileScopedSurf:
-                return "cudaErrorLaunchFileScopedSurf";
+    case cudaErrorStartupFailure:
+      return "cudaErrorStartupFailure";
 
-            case cudaErrorSyncDepthExceeded:
-                return "cudaErrorSyncDepthExceeded";
+    case cudaErrorApiFailureBase:
+      return "cudaErrorApiFailureBase";
 
-            case cudaErrorLaunchPendingCountExceeded:
-                return "cudaErrorLaunchPendingCountExceeded";
+    /* Since CUDA 8.0*/
+    case cudaErrorNvlinkUncorrectable:
+      return "cudaErrorNvlinkUncorrectable";
+    default:
+      break;
+  }
 
-            case cudaErrorNotPermitted:
-                return "cudaErrorNotPermitted";
+  return "<unknown>";
+}
+  #endif
 
-            case cudaErrorNotSupported:
-                return "cudaErrorNotSupported";
+  #ifdef CUBLAS_API_H_
+// cuBLAS API errors
+static const char *_cudaGetErrorEnum(cublasStatus_t error) {
+  switch (error) {
+    case CUBLAS_STATUS_SUCCESS:
+      return "CUBLAS_STATUS_SUCCESS";
 
-            /* Since CUDA 6.0 */
-            case cudaErrorHardwareStackError:
-                return "cudaErrorHardwareStackError";
+    case CUBLAS_STATUS_NOT_INITIALIZED:
+      return "CUBLAS_STATUS_NOT_INITIALIZED";
 
-            case cudaErrorIllegalInstruction:
-                return "cudaErrorIllegalInstruction";
+    case CUBLAS_STATUS_ALLOC_FAILED:
+      return "CUBLAS_STATUS_ALLOC_FAILED";
 
-            case cudaErrorMisalignedAddress:
-                return "cudaErrorMisalignedAddress";
+    case CUBLAS_STATUS_INVALID_VALUE:
+      return "CUBLAS_STATUS_INVALID_VALUE";
 
-            case cudaErrorInvalidAddressSpace:
-                return "cudaErrorInvalidAddressSpace";
+    case CUBLAS_STATUS_ARCH_MISMATCH:
+      return "CUBLAS_STATUS_ARCH_MISMATCH";
 
-            case cudaErrorInvalidPc:
-                return "cudaErrorInvalidPc";
+    case CUBLAS_STATUS_MAPPING_ERROR:
+      return "CUBLAS_STATUS_MAPPING_ERROR";
 
-            case cudaErrorIllegalAddress:
-                return "cudaErrorIllegalAddress";
+    case CUBLAS_STATUS_EXECUTION_FAILED:
+      return "CUBLAS_STATUS_EXECUTION_FAILED";
 
-            /* Since CUDA 6.5*/
-            case cudaErrorInvalidPtx:
-                return "cudaErrorInvalidPtx";
+    case CUBLAS_STATUS_INTERNAL_ERROR:
+      return "CUBLAS_STATUS_INTERNAL_ERROR";
 
-            case cudaErrorInvalidGraphicsContext:
-                return "cudaErrorInvalidGraphicsContext";
+    case CUBLAS_STATUS_NOT_SUPPORTED:
+      return "CUBLAS_STATUS_NOT_SUPPORTED";
 
-            case cudaErrorStartupFailure:
-                return "cudaErrorStartupFailure";
+    case CUBLAS_STATUS_LICENSE_ERROR:
+      return "CUBLAS_STATUS_LICENSE_ERROR";
+  }
 
-            case cudaErrorApiFailureBase:
-                return "cudaErrorApiFailureBase";
+  return "<unknown>";
+}
+  #endif
 
-            /* Since CUDA 8.0*/
-            case cudaErrorNvlinkUncorrectable :
-                return "cudaErrorNvlinkUncorrectable";
-            default:
-                break;
-        }
+  #ifdef CUSOLVER_COMMON_H_
+// cuSOLVER API errors
+static const char *_cudaGetErrorEnum(cusolverStatus_t error) {
+  switch (error) {
+    case CUSOLVER_STATUS_SUCCESS:
+      return "CUSOLVER_STATUS_SUCCESS";
+    case CUSOLVER_STATUS_NOT_INITIALIZED:
+      return "CUSOLVER_STATUS_NOT_INITIALIZED";
+    case CUSOLVER_STATUS_ALLOC_FAILED:
+      return "CUSOLVER_STATUS_ALLOC_FAILED";
+    case CUSOLVER_STATUS_INVALID_VALUE:
+      return "CUSOLVER_STATUS_INVALID_VALUE";
+    case CUSOLVER_STATUS_ARCH_MISMATCH:
+      return "CUSOLVER_STATUS_ARCH_MISMATCH";
+    case CUSOLVER_STATUS_MAPPING_ERROR:
+      return "CUSOLVER_STATUS_MAPPING_ERROR";
+    case CUSOLVER_STATUS_EXECUTION_FAILED:
+      return "CUSOLVER_STATUS_EXECUTION_FAILED";
+    case CUSOLVER_STATUS_INTERNAL_ERROR:
+      return "CUSOLVER_STATUS_INTERNAL_ERROR";
+    case CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
+      return "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED";
+    case CUSOLVER_STATUS_NOT_SUPPORTED:
+      return "CUSOLVER_STATUS_NOT_SUPPORTED ";
+    case CUSOLVER_STATUS_ZERO_PIVOT:
+      return "CUSOLVER_STATUS_ZERO_PIVOT";
+    case CUSOLVER_STATUS_INVALID_LICENSE:
+      return "CUSOLVER_STATUS_INVALID_LICENSE";
+  }
 
-        return "<unknown>";
-    }
-    #endif
+  return "<unknown>";
+}
+  #endif
 
-    #ifdef CUBLAS_API_H_
-    // cuBLAS API errors
-    static const char *_cudaGetErrorEnum(cublasStatus_t error)
-    {
-        switch (error)
-        {
-            case CUBLAS_STATUS_SUCCESS:
-                return "CUBLAS_STATUS_SUCCESS";
+  #ifdef CURAND_H_
+// cuRAND API errors
+static const char *_cudaGetErrorEnum(curandStatus_t error) {
+  switch (error) {
+    case CURAND_STATUS_SUCCESS:
+      return "CURAND_STATUS_SUCCESS";
+    case CURAND_STATUS_VERSION_MISMATCH:
+      return "CURAND_STATUS_VERSION_MISMATCH";
+    case CURAND_STATUS_NOT_INITIALIZED:
+      return "CURAND_STATUS_NOT_INITIALIZED";
+    case CURAND_STATUS_ALLOCATION_FAILED:
+      return "CURAND_STATUS_ALLOCATION_FAILED";
+    case CURAND_STATUS_TYPE_ERROR:
+      return "CURAND_STATUS_TYPE_ERROR";
+    case CURAND_STATUS_OUT_OF_RANGE:
+      return "CURAND_STATUS_OUT_OF_RANGE";
+    case CURAND_STATUS_LENGTH_NOT_MULTIPLE:
+      return "CURAND_STATUS_LENGTH_NOT_MULTIPLE";
+    case CURAND_STATUS_DOUBLE_PRECISION_REQUIRED:
+      return "CURAND_STATUS_DOUBLE_PRECISION_REQUIRED";
+    case CURAND_STATUS_LAUNCH_FAILURE:
+      return "CURAND_STATUS_LAUNCH_FAILURE";
+    case CURAND_STATUS_PREEXISTING_FAILURE:
+      return "CURAND_STATUS_PREEXISTING_FAILURE";
+    case CURAND_STATUS_INITIALIZATION_FAILED:
+      return "CURAND_STATUS_INITIALIZATION_FAILED";
+    case CURAND_STATUS_ARCH_MISMATCH:
+      return "CURAND_STATUS_ARCH_MISMATCH";
+    case CURAND_STATUS_INTERNAL_ERROR:
+      return "CURAND_STATUS_INTERNAL_ERROR";
+  }
 
-            case CUBLAS_STATUS_NOT_INITIALIZED:
-                return "CUBLAS_STATUS_NOT_INITIALIZED";
+  return "<unknown>";
+}
+  #endif
 
-            case CUBLAS_STATUS_ALLOC_FAILED:
-                return "CUBLAS_STATUS_ALLOC_FAILED";
+  #ifdef UNI_CUTENSOR
+static const char *_cudaGetErrorEnum(cutensorStatus_t error) {
+  return cutensorGetErrorString(error);
+}
+  #endif
 
-            case CUBLAS_STATUS_INVALID_VALUE:
-                return "CUBLAS_STATUS_INVALID_VALUE";
-
-            case CUBLAS_STATUS_ARCH_MISMATCH:
-                return "CUBLAS_STATUS_ARCH_MISMATCH";
-
-            case CUBLAS_STATUS_MAPPING_ERROR:
-                return "CUBLAS_STATUS_MAPPING_ERROR";
-
-            case CUBLAS_STATUS_EXECUTION_FAILED:
-                return "CUBLAS_STATUS_EXECUTION_FAILED";
-
-            case CUBLAS_STATUS_INTERNAL_ERROR:
-                return "CUBLAS_STATUS_INTERNAL_ERROR";
-
-            case CUBLAS_STATUS_NOT_SUPPORTED:
-                return "CUBLAS_STATUS_NOT_SUPPORTED";
-
-            case CUBLAS_STATUS_LICENSE_ERROR:
-                return "CUBLAS_STATUS_LICENSE_ERROR";
-        }
-
-        return "<unknown>";
-    }
-    #endif
-
-    #ifdef CUSOLVER_COMMON_H_
-    //cuSOLVER API errors
-    static const char *_cudaGetErrorEnum(cusolverStatus_t error)
-    {
-       switch(error)
-       {
-           case CUSOLVER_STATUS_SUCCESS:
-               return "CUSOLVER_STATUS_SUCCESS";
-           case CUSOLVER_STATUS_NOT_INITIALIZED:
-               return "CUSOLVER_STATUS_NOT_INITIALIZED";
-           case CUSOLVER_STATUS_ALLOC_FAILED:
-               return "CUSOLVER_STATUS_ALLOC_FAILED";
-           case CUSOLVER_STATUS_INVALID_VALUE:
-               return "CUSOLVER_STATUS_INVALID_VALUE";
-           case CUSOLVER_STATUS_ARCH_MISMATCH:
-               return "CUSOLVER_STATUS_ARCH_MISMATCH";
-           case CUSOLVER_STATUS_MAPPING_ERROR:
-               return "CUSOLVER_STATUS_MAPPING_ERROR";
-           case CUSOLVER_STATUS_EXECUTION_FAILED:
-               return "CUSOLVER_STATUS_EXECUTION_FAILED";
-           case CUSOLVER_STATUS_INTERNAL_ERROR:
-               return "CUSOLVER_STATUS_INTERNAL_ERROR";
-           case CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
-               return "CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED";
-           case CUSOLVER_STATUS_NOT_SUPPORTED :
-               return "CUSOLVER_STATUS_NOT_SUPPORTED ";
-           case CUSOLVER_STATUS_ZERO_PIVOT:
-               return "CUSOLVER_STATUS_ZERO_PIVOT";
-           case CUSOLVER_STATUS_INVALID_LICENSE:
-               return "CUSOLVER_STATUS_INVALID_LICENSE";
-        }
-
-        return "<unknown>";
-
-    }
-    #endif
-
-    #ifdef CURAND_H_
-    //cuRAND API errors
-    static const char *_cudaGetErrorEnum(curandStatus_t error)
-    {
-       switch(error)
-       {
-            case CURAND_STATUS_SUCCESS: return "CURAND_STATUS_SUCCESS";
-            case CURAND_STATUS_VERSION_MISMATCH: return "CURAND_STATUS_VERSION_MISMATCH";
-            case CURAND_STATUS_NOT_INITIALIZED: return "CURAND_STATUS_NOT_INITIALIZED";
-            case CURAND_STATUS_ALLOCATION_FAILED: return "CURAND_STATUS_ALLOCATION_FAILED";
-            case CURAND_STATUS_TYPE_ERROR: return "CURAND_STATUS_TYPE_ERROR";
-            case CURAND_STATUS_OUT_OF_RANGE: return "CURAND_STATUS_OUT_OF_RANGE";
-            case CURAND_STATUS_LENGTH_NOT_MULTIPLE: return "CURAND_STATUS_LENGTH_NOT_MULTIPLE";
-            case CURAND_STATUS_DOUBLE_PRECISION_REQUIRED: return "CURAND_STATUS_DOUBLE_PRECISION_REQUIRED";
-            case CURAND_STATUS_LAUNCH_FAILURE: return "CURAND_STATUS_LAUNCH_FAILURE";
-            case CURAND_STATUS_PREEXISTING_FAILURE: return "CURAND_STATUS_PREEXISTING_FAILURE";
-            case CURAND_STATUS_INITIALIZATION_FAILED: return "CURAND_STATUS_INITIALIZATION_FAILED";
-            case CURAND_STATUS_ARCH_MISMATCH: return "CURAND_STATUS_ARCH_MISMATCH";
-            case CURAND_STATUS_INTERNAL_ERROR: return "CURAND_STATUS_INTERNAL_ERROR";
-        }
-
-        return "<unknown>";
-
-    }
-    #endif
-
-
-
-
-
-    #ifdef __DRIVER_TYPES_H__
+  #ifdef __DRIVER_TYPES_H__
     #ifndef DEVICE_RESET
-    #define DEVICE_RESET cudaDeviceReset();
+      #define DEVICE_RESET cudaDeviceReset();
     #endif
-    #else
+  #else
     #ifndef DEVICE_RESET
-    #define DEVICE_RESET
+      #define DEVICE_RESET
     #endif
-    #endif
+  #endif
 
-    template< typename T >
-    void check(T result, char const *const func, const char *const file, int const line)
-    {
-        if (result)
-        {
-            fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \"%s\" \n",
-                    file, line, static_cast<unsigned int>(result), _cudaGetErrorEnum(result), func);
-            DEVICE_RESET
-            // Make sure we call CUDA Device Reset before exiting
-            exit(EXIT_FAILURE);
-        }
-    }
+template <typename T>
+void check(T result, char const *const func, const char *const file, int const line) {
+  if (result) {
+    fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \"%s\" \n", file, line,
+            static_cast<unsigned int>(result), _cudaGetErrorEnum(result), func);
+    DEVICE_RESET
+    // Make sure we call CUDA Device Reset before exiting
+    exit(EXIT_FAILURE);
+  }
+}
 
-    #ifdef __DRIVER_TYPES_H__
-    // This will output the proper CUDA error strings in the event that a CUDA host call returns an error
-    #define checkCudaErrors(val)           check ( (val), #val, __FILE__, __LINE__ )
+  #ifdef __DRIVER_TYPES_H__
+    // This will output the proper CUDA error strings in the event that a CUDA host call returns an
+    // error
+    #define checkCudaErrors(val) check((val), #val, __FILE__, __LINE__)
 
-    #endif
+  #endif
 
-    #endif // End of #if defined(UNI_GPU)
+#endif  // End of #if defined(UNI_GPU)
 
 #endif

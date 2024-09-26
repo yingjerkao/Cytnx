@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+home = str(Path.home())
+sys.path.append(home + '/Cytnx_lib')
 from cytnx import *
 
 A = Tensor([3,4,5])
@@ -10,4 +14,3 @@ C = B.contiguous()
 print(B.is_contiguous()) #false
 print(C.is_contiguous()) #true
 print(C.shape())
-

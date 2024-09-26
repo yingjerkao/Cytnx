@@ -1,448 +1,65 @@
 
-######################################################################
-### CMAKE VERSION
-######################################################################
-cmake_minimum_required(VERSION 3.11)
+message(STATUS "")
+message(STATUS "------------------------------------------------------------------------")
+message(STATUS "  Project Cytnx, A Cross-section of Python & C++,Tensor network library ")
+message(STATUS "------------------------------------------------------------------------")
+message(STATUS "")
+
+# #####################################################################
+# ## CMAKE and CXX VERSION
+# #####################################################################
+cmake_minimum_required(VERSION 3.20)
 
 include(cmake/target_sources_local.cmake)
 include(ExternalProject)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 message(STATUS ${CMAKE_MODULE_PATH})
-include(GNUInstallDirs)
 
-#set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# set(CMAKE_CXX_EXTENSIONS OFF)
+message(STATUS " Generator: ${CMAKE_GENERATOR}")
+message(STATUS " Build Target: ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS " Installation Prefix: ${CMAKE_INSTALL_PREFIX}")
 
-######################################################################
-### DISABLING IN-SOURCE BUILD
-### (DO NOT MODIFY)
-######################################################################
+# #####################################################################
+# ## DISABLING IN-SOURCE BUILD
+# ## (DO NOT MODIFY)
+# #####################################################################
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR
-    "
-     In-source builds not allowed.\n
-     Please\n
-       1) make a build directory by:
-            mkdir -p path/to/my/build/directory\n
-       2) run CMake in that build directory:
-            cd path/to/my/build/directory
-            cmake path/to/my/src/directory
 
-     You have to first remove the file \"CMakeCache.txt\" by:
-         rm CMakeCache.txt
-    "
-  )
-endif()
 # Generate pif code
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
+if(USE_DEBUG)
+  set(CMAKE_BUILD_TYPE "DEBUG")
+endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RELEASE")
 endif()
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
-if(    NOT cmake_build_type_tolower STREQUAL "debug"
-   AND NOT cmake_build_type_tolower STREQUAL "release"
-   AND NOT cmake_build_type_tolower STREQUAL "relwithdebinfo")
+
+if(NOT cmake_build_type_tolower STREQUAL "debug"
+  AND NOT cmake_build_type_tolower STREQUAL "release"
+  AND NOT cmake_build_type_tolower STREQUAL "relwithdebinfo")
   message(FATAL_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo (case-insensitive).")
 endif()
 
-
-######################################################################
+# #####################################################################
 # Version information
-######################################################################
-#include(version.cmake)
-set(CYTNX_VERSION_MAJOR 0)
-set(CYTNX_VERSION_MINOR 7)
-set(CYTNX_VERSION_PATCH 2)
-set(CYTNX_VERSION COUNT 0)
+# #####################################################################
+include(version.cmake)
 set(CYTNX_VERSION
   ${CYTNX_VERSION_MAJOR}.${CYTNX_VERSION_MINOR}.${CYTNX_VERSION_PATCH}
 )
-
 set(CYTNX_VARIANT_INFO "")
 
-
-######################################################################
-### COMMAND LINE OPTIONS
-######################################################################
-
-option(USE_ICPC "Build Cytnx with Intel Compilers" OFF)
-option(USE_CUDA "Build using Nvidia CUDA for GPU library" OFF)
-option(BUILD_PYTHON "Build Python wrapper" ON)
-option(USE_MKL "Build using MKL" OFF)
-option(USE_OMP "Build Cytnx with OpenMP" ON)
-option(BUILD_DOC "Build API docuemntation" OFF)
-option(USE_HPTT "Build Cytnx with HPTT" OFF)
-
-if (USE_ICPC)
-  message(STATUS, "Build Cytnx with Intel Compilers")
-  message(STATUS, "Finding Intel Compilers....")
-  find_program(CMAKE_C_COMPILER NAMES icc)
-  find_program(CMAKE_CXX_COMPILER NAMES icpc)
-  find_program(CMAKE_AR NAMES xiar)
-  find_program(CMAKE_LINKER NAMES xild)
-
-  if (NOT (CMAKE_C_COMPILER AND
-           CMAKE_CXX_COMPILER AND
-           CMAKE_AR AND
-           CMAKE_LINKER ))
-    message("Cannot find Intel compilers.")
-    message("You may need to run `. /opt/intel/bin/compilervars.sh intel64/ia32'")
-    message("Falling back to system compilers.")
-    find_program(CMAKE_C_COMPILER NAMES cc)
-    find_program(CMAKE_CXX_COMPILER NAMES cpp)
-    find_program(CMAKE_AR NAMES ar)
-    find_program(CMAKE_LINKER NAMES ld)
-  else()
-    target_compile_definitions(cytnx UNI_ICPC)
-  endif ()
-endif ()
-
-if (USE_MKL)
-  option(MKL_SDL "Link to a single MKL dynamic libary." ON)
-  option(MKL_MLT "Use multi-threading libary. [Default]" ON)
-  mark_as_advanced(MKL_SDL MKL_MLT)
-  set(CYTNX_VARIANT_INFO "${CYTNX_VARIANT_INFO} UNI_MKL")
-endif()
-
-if (USE_HPTT)
-option(HPTT_ENABLE_ARM "HPTT option ARM" OFF)
-option(HPTT_ENABLE_AVX "HPTT option AVX" OFF)
-option(HPTT_ENABLE_IBM "HPTT option IBM" OFF)
-option(HPTT_ENABLE_FINE_TUNE "HPTT option FINE_TUNE" OFF)
-set(CYTNX_VARIANT_INFO "${CYTNX_VARIANT_INFO} UNI_HPTT")
-ExternalProject_Add(hptt
-  PREFIX hptt_src
-  GIT_REPOSITORY https://github.com/kaihsin/hptt.git
-  GIT_TAG fc9c8cb9b71f4f6d16aad435bdce20025b342a73
-  BINARY_DIR hptt_src/build
-  INSTALL_DIR hptt
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DENABLE_ARM=${HPTT_ENABLE_ARM} -DENABLE_AVX=${HPTT_ENABLE_AVX} -DENABLE_IBM=${HPTT_ENABLE_IBM} -DFINE_TUNE=${HPTT_ENABLE_FINE_TUNE}
-)
-endif()
-
-if (USE_CUDA)
-    if (USE_CUTT)
-    option(CUTT_ENABLE_FINE_TUNE "CUTT option FINE_TUNE" OFF)
-    option(CUTT_ENABLE_NVTOOLS "CUTT option NVTOOLS" OFF)
-    option(CUTT_NO_ALIGN_ALLOC "CUTT option NO_ALIGN_ALLIC" OFF)
-    set(CYTNX_VARIANT_INFO "${CYTNX_VARIANT_INFO} UNI_CUTT")
-    ExternalProject_Add(cutt
-      PREFIX cutt_src
-      GIT_REPOSITORY https://github.com/kaihsin/cutt.git
-      GIT_TAG 27ed59a42f2610923084c4687327d00f4c2d1d2d
-      BINARY_DIR cutt_src/build
-      INSTALL_DIR cutt
-      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DNO_ALIGN_ALLOC=${CUTT_NO_ALIGN_ALLOC} -DENABLE_NVTOOLS=${CUTT_ENABLE_NVTOOLS} -DFINE_TUNE=${CUTT_ENABLE_FINE_TUNE}
-    )
-    endif()
-endif()
-
-######################################################################
-### PROJECT
-######################################################################
-project(CYTNX VERSION ${CYTNX_VERSION} LANGUAGES CXX C )
-
-add_library(cytnx STATIC)
-set_property(TARGET cytnx PROPERTY C_VISIBILITY_PRESET hidden)
-set_property(TARGET cytnx PROPERTY VISIBILITY_INLINES_HIDDEN ON)
-target_include_directories(cytnx
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-    PUBLIC
-        $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
-target_include_directories(cytnx SYSTEM
-    PUBLIC
-				${Boost_INCLUDE_DIRS}
-)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=0 -Wno-c++11-narrowing -w")
-target_compile_features(cytnx PUBLIC cxx_std_11)
-#set_property(TARGET cytnx PROPERTY CXX_STANDARD 11)
-
-add_subdirectory(src)
-
-
-
-#####################################################################
-### Dependency of CUTT
-#####################################################################
-if(USE_CUDA)
-    if(USE_CUTT)
-        ExternalProject_Get_Property(cutt install_dir)
-        include_directories(${install_dir}/include)
-        message(STATUS "cutt install dir: ${install_dir}")
-        add_dependencies(cytnx cutt)
-        set_property(TARGET cytnx PROPERTY CUDA_ARCHITECTURES 52 53 60 61 62 70 72 75 80 86)
-        target_compile_definitions(cytnx PRIVATE UNI_CUTT)
-        target_link_libraries(cytnx PRIVATE ${install_dir}/lib/libcutt.a)
-    endif()
-endif()
-
-#####################################################################
-### Dependency of HPTT
-#####################################################################
-if(USE_HPTT)
-    ExternalProject_Get_Property(hptt install_dir)
-    include_directories(${install_dir}/include)
-    message(STATUS "hptt install dir: ${install_dir}")
-    add_dependencies(cytnx hptt)
-    target_compile_definitions(cytnx PRIVATE UNI_HPTT)
-    target_link_libraries(cytnx PRIVATE ${install_dir}/lib/libhptt.a)
-endif()
-
-
-
-######################################################################
-### Find BLAS and LAPACK
-######################################################################
-if( NOT (DEFINED BLAS_LIBRARIES AND DEFINED LAPACK_LIBRARIES))
-  if (USE_MKL)
-    set(BLA_VENDOR Intel10_64ilp)
-    find_package( BLAS REQUIRED)
-    find_package( LAPACK REQUIRED)
-    message( STATUS "LAPACK found: ${LAPACK_LIBRARIES}" )
-  else()
-    set(BLA_VENDOR OpenBLAS)
-    find_package( BLAS REQUIRED)
-    find_package( LAPACK REQUIRED)
-    message( STATUS "LAPACK found: ${LAPACK_LIBRARIES}" )
-  endif()
-else()
-  set(LAPACK_LIBRARIES  ${BLAS_LIBRARIES}  ${LAPACK_LIBRARIES})
-  message( STATUS "LAPACK found: ${LAPACK_LIBRARIES}")
-endif()
-
-if (USE_MKL)
-    target_compile_definitions(cytnx PRIVATE UNI_MKL)
-    target_compile_definitions(cytnx PRIVATE MKL_ILP64)
-    set(USE_OMP ON FORCE)
-endif()
-
-
-find_package(Boost REQUIRED)
-message(STATUS "Boost INCCC: ${Boost_INCLUDE_DIRS}")
-message(STATUS ${COMPILE_DEFINITIONS})
-# ----------------------------------------
-# Find OpenMP
-if(USE_OMP)
-    set(CYTNX_VARIANT_INFO "${CYTNX_VARIANT_INFO} UNI_OMP")
-    if(USE_MKL)
-        target_compile_definitions(cytnx PRIVATE UNI_OMP)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-    else()
-        find_package( OpenMP )
-        if ( OPENMP_FOUND )
-          if(NOT TARGET OpenMP::OpenMP_CXX)
-            find_package(Threads REQUIRED)
-            add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-            set_property(TARGET OpenMP::OpenMP_CXX
-                         PROPERTY INTERFACE_COMPILE_OPTIONS "$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${OpenMP_CXX_FLAGS}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${OpenMP_CXX_FLAGS}>")
-            # Only works if the same flag is passed to the linker; use CMake 3.9+ otherwise (Intel, AppleClang)
-            set_property(TARGET OpenMP::OpenMP_CXX
-                         PROPERTY INTERFACE_LINK_LIBRARIES "$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${OpenMP_CXX_FLAGS}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${OpenMP_CXX_FLAGS}>" Threads::Threads)
-
-          else()
-            set_property(TARGET OpenMP::OpenMP_CXX
-                         PROPERTY INTERFACE_COMPILE_OPTIONS "$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${OpenMP_CXX_FLAGS}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${OpenMP_CXX_FLAGS}>")    
-          endif()
-          target_link_libraries(cytnx PRIVATE OpenMP::OpenMP_CXX)
-          target_compile_definitions(cytnx PRIVATE UNI_OMP)
-        endif()
-    endif()
-endif()
-target_link_libraries(cytnx PUBLIC Boost::boost ${LAPACK_LIBRARIES})
-
-
-#####
-#function(CUDA_CONVERT_FLAGS EXISTING_TARGET)
-#    get_property(old_flags TARGET ${EXISTING_TARGET} PROPERTY INTERFACE_COMPILE_OPTIONS)
-#    if(NOT "${old_flags}" STREQUAL "")
-#        string(REPLACE ";" "," CUDA_flags "${old_flags}")
-#        set_property(TARGET ${EXISTING_TARGET} PROPERTY INTERFACE_COMPILE_OPTIONS
-#            "$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${old_flags}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${CUDA_flags}>"
-#            )
-#    endif()
-#endfunction()
-#CUDA_CONVERT_FLAGS(cytnx)
-####
-
-######################################################################
-### Find CUDA
-######################################################################
-### Reference for Separate Compilation and Linking of CUDA C++ Device Code
-### https://devblogs.nvidia.com/parallelforall/separate-compilation-linking-cuda-device-code/
-
-###  NVCC:= $(CUDA_PATH)/bin/nvcc -ccbin $(CC)
-### NVFLAGS:= -m64 -g
-### SMS ?= 30
-
-if(USE_CUDA)
-  set(CYTNX_VARIANT_INFO "${CYTNX_VARIANT_INFO} UNI_CUDA")
-  enable_language(CUDA)
-  find_package(CUDA REQUIRED)
-  if(NOT DEFINED CMAKE_CUDA_STANDARD)
-    set(CMAKE_CUDA_STANDARD 11)
-    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-  endif()
-
-  set_target_properties(cytnx PROPERTIES 
-      CUDA_SEPARABLE_COMPILATION ON
-                                   )
-  set_target_properties(cytnx PROPERTIES CUDA_RESOLVE_DEVICE_SYMBOLS ON)
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcudafe=--display_error_number -lineinfo")
-  #set(CMAKE_CUDA_FLAGS "-Xcompiler=-Wall -Xcompiler=-Wno-deprecated-gpu-targets -Xcudafe=--display_error_number")
-  ##set(CMAKE_CUDA_FLAGS "-Xcompiler=-Wall -Wno-deprecated-gpu-targets -Xcudafe=--display_error_number")
-##  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}  "-DUNI_GPU")
-#  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}  "-arch=sm_50 \
-#      -gencode=arch=compute_50,code=sm_50 \
-#      -gencode=arch=compute_52,code=sm_52 \
-#      -gencode=arch=compute_60,code=sm_60 \
-#      -gencode=arch=compute_61,code=sm_61 \
-#      -gencode=arch=compute_70,code=sm_70 \
-#      -gencode=arch=compute_75,code=sm_75 \
-#      -gencode=arch=compute_75,code=compute_75 ")
-  target_compile_definitions(cytnx PRIVATE UNI_GPU)
-  #target_compile_options(cytnx PRIVATE ${CMAKE_CUDA_FLAGS})
-  #target_compile_options(cytnx PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:>)
-  target_include_directories(cytnx PRIVATE ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
-  target_link_libraries(cytnx PRIVATE ${CUDA_cusolver_LIBRARY})
-  target_link_libraries(cytnx PRIVATE -lcublas -lcurand)
-endif()
-
-
-
-
-######################################################################
-### Build Documents
-######################################################################
-IF(BUILD_DOC)
-  FIND_PACKAGE(Doxygen REQUIRED)
-  if(DOXYGEN_FOUND)
-    configure_file(cytnx_Doxyfile.in cytnxDoxyfile)
-    add_custom_target(doc ALL
-    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/cytnxDoxyfile
-     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-     COMMENT "Generating API documentation with Doxygen" VERBATIM
-     )
-  endif(DOXYGEN_FOUND)
-ENDIF()
-
-IF(BUILD_PYTHON)
-    find_package(PythonInterp REQUIRED)
-    find_package(pybind11 REQUIRED)
-    if( NOT PYBIND11_FOUND)
-        include(FetchContent)
-        FetchContent_Declare(
-          pybind11_sources
-          GIT_REPOSITORY https://github.com/pybind/pybind11.git
-          GIT_TAG v2.4.3
-          )
-
-        FetchContent_GetProperties(pybind11_sources)
-
-        if(NOT pybind11_sources_POPULATED)
-          FetchContent_Populate(pybind11_sources)
-
-          add_subdirectory(
-            ${pybind11_sources_SOURCE_DIR}
-            ${pybind11_sources_BINARY_DIR}
-            )
-        endif()
-    endif()
-    pybind11_add_module(pycytnx SHARED pybind/cytnx.cpp)
-    target_link_libraries(pycytnx PRIVATE cytnx)
-    set_target_properties(pycytnx PROPERTIES OUTPUT_NAME cytnx)
-    #add_library(cytnx MODULE pybind/cytnx.cpp)
-    #target_link_libraries(cytnx PRIVATE pybind11::module)
-    #set_target_properties(cytnx PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
-    #                                     SUFFIX "${PYTHON_MODULE_EXTENSION}")
-ENDIF()
-
-######################################################################
-### INSTALL
-######################################################################
-
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/cytnx)
-INSTALL(TARGETS cytnx EXPORT cytnx_targets
-        LIBRARY
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          COMPONENT libraries
-        ARCHIVE
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          COMPONENT libraries
-        PUBLIC_HEADER
-          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-          COMPONENT Development
-      )
-if(BUILD_PYTHON)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cytnx
-        DESTINATION ${CMAKE_INSTALL_PREFIX}
-        )
-    INSTALL(TARGETS pycytnx EXPORT pycytnx_targets
-            LIBRARY
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/cytnx
-              COMPONENT libraries
-          )
-endif()
-install(EXPORT cytnx_targets
-        FILE CytnxTargets.cmake
-        NAMESPACE Cytnx::
-        DESTINATION ${INSTALL_CONFIGDIR}
-        )
-install(DIRECTORY include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        COMPONENT headers
-        FILES_MATCHING PATTERN 		"*.h*")
-
-
-#Create a ConfigVersion.cmake file
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-        ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfigVersion.cmake
-        VERSION ${CYTNX_VERSION}
-        COMPATIBILITY AnyNewerVersion
-)
-
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/CytnxConfig.cmake.in
-        ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfig.cmake
-        INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
-        )
-
-
-install(FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfigVersion.cmake
-        DESTINATION ${INSTALL_CONFIGDIR}
-        )
-
-##############################################
-## Exporting from the build tree
-
-export(EXPORT cytnx_targets FILE ${CMAKE_CURRENT_BINARY_DIR}/CytnxTargets.cmake NAMESPACE Cytnx::)
-
-export(PACKAGE Cytnx)
-
-
-######################################################################
-### INSTALL DOCUMENTATION
-######################################################################
-if(DOXYGEN_FOUND)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs/
-	DESTINATION docs
-        COMPONENT documentation
-)
-endif()
-
-
-set(libname "${CMAKE_SHARED_LIBRARY_PREFIX}cytnx.${CYTNX_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
+message(STATUS " Version: ${CYTNX_VERSION}")
 
 # create a file that contain all the link flags:
 FILE(WRITE "${CMAKE_BINARY_DIR}/linkflags.tmp" "" "")
@@ -454,125 +71,351 @@ FILE(APPEND "${CMAKE_BINARY_DIR}/version.tmp" "${CYTNX_VERSION}" "")
 FILE(WRITE "${CMAKE_BINARY_DIR}/vinfo.tmp" "" "")
 FILE(APPEND "${CMAKE_BINARY_DIR}/vinfo.tmp" "${CYTNX_VARIANT_INFO}" "")
 
-######################################################################
-# Information Messages
-######################################################################
-message(STATUS "")
-message(STATUS "------------------------------------------------------------------------")
-message(STATUS "  Project Cytnx, A Cross-section of Python & C++,Tensor network library ")
-message(STATUS "------------------------------------------------------------------------")
-message(STATUS "")
-message(STATUS " Version: ${CYTNX_VERSION}")
-message(STATUS " Generator: ${CMAKE_GENERATOR}")
-message(STATUS " Build Target: ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
-message(STATUS " Installation Prefix: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS " CXX Compiler: ${CMAKE_CXX_COMPILER}")
-message(STATUS " CXX Flags: ${CMAKE_CXX_FLAGS}")
-message(STATUS " BLAS and LAPACK Libraries: ${LAPACK_LIBRARIES}")
-message(STATUS " Link libraries: ${CYTNX_LINK_Libs}")
-#message(STATUS " Boost libs: ${Boost_LIBRARIES}")
-FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${LAPACK_LIBRARIES}\n" "")
+# #####################################################################
+# ## COMMAND LINE OPTIONS
+# #####################################################################
+option(BACKEND_TORCH "Build Cytnx with pytorch backend (requires pytorch)" OFF)
 
+# # the following are only referenced when BACKEND_TORCH=OFF
+option(USE_CUDA "Build using Nvidia CUDA for GPU library" OFF)
+option(BUILD_PYTHON "Build Python wrapper" ON)
+option(USE_MKL "Build using MKL" ON)
+option(USE_OMP "Build Cytnx with OpenMP" OFF)
+option(BUILD_DOC "Build API docuemntation" OFF)
+option(USE_HPTT "Build Cytnx with HPTT" OFF)
+option(RUN_TESTS "Run Cytnx tests" OFF)
+option(USE_CUTT "Build Cytnx with CUTT" OFF)
+option(USE_MAGMA "Build Cytnx with MAGMA (requires CUDA)" ON)
+option(USE_CUTENSOR "Build Cytnx with CuTensor (requires CUDA)" ON)
+option(USE_CUQUANTUM "Build Cytnx with CUQuantum (requires CUDA)" ON)
+
+option(DEV_MODE "Build testing dev_test.cpp with cytnx" OFF)
+
+# #####################################################################
+# ## PROJECT
+# #####################################################################
+project(CYTNX VERSION ${CYTNX_VERSION} LANGUAGES CXX C)
+
+add_library(cytnx STATIC)
+set_property(TARGET cytnx PROPERTY C_VISIBILITY_PRESET hidden)
+set_property(TARGET cytnx PROPERTY VISIBILITY_INLINES_HIDDEN ON)
+
+target_include_directories(cytnx
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+
+target_compile_definitions(cytnx PUBLIC _LIBCPP_DISABLE_AVAILABILITY)
+target_compile_definitions(cytnx PUBLIC _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
+target_include_directories(cytnx SYSTEM
+  PUBLIC
+  ${Boost_INCLUDE_DIRS}
+)
+
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=0 -Wno-c++11-narrowing -w")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=0 -w -fsized-deallocation -fsanitize=address")
+
+target_compile_options(cytnx PUBLIC -Wformat=0 -w -fsized-deallocation)
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=0 -w -fsized-deallocation -diag-disable=10441")
+
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBCPP_DISABLE_AVAILABILITY")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION")
+target_compile_features(cytnx PUBLIC cxx_std_17)
+
+# target_compile_definitions(cytnx PUBLIC _LIBCPP_DISABLE_AVAILABILITY)
+# target_compile_definitions(cytnx PUBLIC _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
+# set_property(TARGET cytnx PROPERTY CXX_STANDARD 11)
+add_subdirectory(src)
+
+if(USE_DEBUG)
+  target_compile_definitions(cytnx PUBLIC UNI_DEBUG)
+
+  # Remember to add export ASAN_OPTIONS=protect_shadow_gap=0 in Install.sh
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+endif()
+
+if(RUN_TESTS)
+  enable_testing()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fprofile-arcs -ftest-coverage")
+  target_link_libraries(cytnx PUBLIC "-lgcov --coverage")
+  add_subdirectory(tests)
+  #add_subdirectory(bm_tests)
+endif()
+
+include(GNUInstallDirs)
+
+if(USE_ICPC)
+  target_compile_definitions(cytnx PUBLIC UNI_ICPC)
+  # This option is to disable the warning of icpc
+  target_compile_options(cytnx PUBLIC -diag-disable=10441)
+  # This option is to maintain consistency of the floating point operation, also try to improve the performance
+  target_compile_options(cytnx PUBLIC -fp-model consistent -fimf-use-svml)
+endif()
+
+# #####################################################################
+
+# ## Boost
+find_package(Boost REQUIRED)
+target_include_directories(cytnx SYSTEM
+  PUBLIC
+  ${Boost_INCLUDE_DIRS}
+)
+target_link_libraries(cytnx PUBLIC Boost::boost ${LAPACK_LIBRARIES})
 FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-I${Boost_INCLUDE_DIRS}\n" "")
-FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "${CMAKE_CXX_FLAGS}\n" "")
-FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-std=c++11\n" "")
-#foreach(vars ${ALL_CXXDEF})
-#    FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-D${vars}\n" "")
-#endforeach(vars)
+
+# ###
+if(BACKEND_TORCH)
+  message(STATUS "backend = pytorch")
+  target_compile_definitions(cytnx PUBLIC BACKEND_TORCH)
+
+  # let torch python expose where pytorch.cmake is installed
+  execute_process(
+    COMMAND bash -c "python -c 'import torch;print(torch.utils.cmake_prefix_path)'"
+    OUTPUT_VARIABLE TORCH_CMAKE_PATH_C
+  )
+  string(REGEX REPLACE "\n$" "" TORCH_CMAKE_PATH_C "${TORCH_CMAKE_PATH_C}")
+  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${TORCH_CMAKE_PATH_C})
+  message(STATUS ${CMAKE_PREFIX_PATH})
+
+  find_package(Torch REQUIRED)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+  message(STATUS "pytorch: ${TORCH_INSTALL_PREFIX}")
+  message(STATUS "pytorch libs: ${TORCH_LIBRARIES}")
+
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    target_link_libraries(cytnx PUBLIC ${TORCH_LIBRARIES} ${TORCH_INSTALL_PREFIX}/lib/libtorch_python.dylib)
+  else()
+    target_link_libraries(cytnx PUBLIC ${TORCH_LIBRARIES} ${TORCH_INSTALL_PREFIX}/lib/libtorch_python.so)
+    target_link_libraries(cytnx PRIVATE ${TORCH_LIBRARIES} ${TORCH_INSTALL_PREFIX}/lib/libtorch_python.so)
+    target_link_libraries(cytnx INTERFACE ${TORCH_LIBRARIES} ${TORCH_INSTALL_PREFIX}/lib/libtorch_python.so)
+  endif()
+
+else()
+  message(STATUS "backend = cytnx")
+  include(CytnxBKNDCMakeLists.cmake)
+endif() # Backend torch
+
+# #####################################################################
+# ## Get Gtest & benchmark
+# #####################################################################
+if(RUN_TESTS)
+  find_package(GTest REQUIRED)
+  #find_package(benchmark REQUIRED)
 
 
-if(BUILD_PYTHON)
+  #include(FetchContent)
+  #FetchContent_Declare(
+  #  googletest
+  #  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+  #)
+
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+  #FetchContent_Declare(
+  #  googlebenchmark
+  #  GIT_REPOSITORY https://github.com/google/benchmark.git
+  #  GIT_TAG v1.7.1) # need master for benchmark::benchmark
+  #set(BENCHMARK_ENABLE_TESTING off) # to suppress benchmark internal tests
+
+  #FetchContent_MakeAvailable(
+  #  googletest
+  #  googlebenchmark)
+endif()
+
+# #######
+# ## Python wrapper
+# #######
+IF(BUILD_PYTHON)
+  # PythonInterp is removed in newer version of cmake
+  # find_package(PythonInterp REQUIRED)
+  find_package (Python COMPONENTS Interpreter Development)
+  find_package(pybind11 REQUIRED)
+
+  if(NOT pybind11_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+      pybind11_sources
+      GIT_REPOSITORY https://github.com/pybind/pybind11.git
+      GIT_TAG v2.11.1
+    )
+
+    FetchContent_GetProperties(pybind11_sources)
+
+    if(NOT pybind11_sources_POPULATED)
+      FetchContent_Populate(pybind11_sources)
+
+      add_subdirectory(
+        ${pybind11_sources_SOURCE_DIR}
+        ${pybind11_sources_BINARY_DIR}
+      )
+    endif()
+  endif()
+
+  pybind11_add_module(pycytnx SHARED pybind/cytnx.cpp
+    pybind/generator_py.cpp
+    pybind/storage_py.cpp
+    pybind/tensor_py.cpp
+    pybind/symmetry_py.cpp
+    pybind/bond_py.cpp
+    pybind/network_py.cpp
+    pybind/linop_py.cpp
+    pybind/unitensor_py.cpp
+    pybind/linalg_py.cpp
+    pybind/algo_py.cpp
+    pybind/physics_related_py.cpp
+    pybind/random_py.cpp
+    pybind/tnalgo_py.cpp
+    pybind/scalar_py.cpp
+    pybind/ncon_py.cpp
+  )
+  target_link_libraries(pycytnx PUBLIC cytnx)
+  set_target_properties(pycytnx PROPERTIES OUTPUT_NAME cytnx)
+  message(STATUS "pybind11 include dir: ${CUTENSOR_LIBRARY_DIRS}")
+  message(STATUS "pybind11 include dir: ${CUQUANTUM_LIBRARY_DIRS}")
+  set_target_properties(pycytnx
+    PROPERTIES
+    INSTALL_RPATH "${CUTENSOR_LIBRARY_DIRS};${CUQUANTUM_LIBRARY_DIRS}"
+  )
+
   message(STATUS " Build Python Wrapper: YES")
   message(STATUS "  - Python Excutable  : ${PYTHON_EXECUTABLE}")
   message(STATUS "  - Python Headers    : ${PYTHON_INCLUDE_DIR}")
   message(STATUS "  - Python Library    : ${PYTHON_LIBRARY}")
-else()
+
+ELSE()
   message(STATUS " Build Python Wrapper: NO")
+ENDIF()
+
+# #####################################################################
+# ## INSTALL
+# #####################################################################
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/cytnx)
+INSTALL(TARGETS cytnx EXPORT cytnx_targets
+  LIBRARY
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  COMPONENT libraries
+  ARCHIVE
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  COMPONENT libraries
+  PUBLIC_HEADER
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  COMPONENT Development
+)
+
+if(BUILD_PYTHON)
+  install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/cytnx
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+  INSTALL(TARGETS pycytnx EXPORT pycytnx_targets
+    LIBRARY
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/cytnx
+    COMPONENT libraries
+  )
 endif()
-if(USE_CUDA)
-  message( STATUS " Build CUDA Support: YES")
-  message( STATUS "  - CUDA Version: ${CUDA_VERSION_STRING}")
-  message( STATUS "  - CUDA Toolkit Root: ${CUDA_TOOLKIT_ROOT_DIR}")
-  message( STATUS "  - CuSolver library: ${CUDA_cusolver_LIBRARY}")
-  FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-DUNI_GPU\n" "")
-  message( STATUS "  - Internal macro switch: GPU/CUDA")
-  FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${CUDA_cusolver_LIBRARY}\n" "")
-  message( STATUS "  - Curand library: ${CUDA_curand_LIBRARY}")
-  FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${CUDA_curand_LIBRARY}\n" "")
-  message( STATUS "  - CuBlas library: ${CUDA_cublas_LIBRARY}")
-  FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${CUDA_cublas_LIBRARY}\n" "")
-  message( STATUS "  - Cuda rt library: ${CUDA_cudart_static_LIBRARY} -ldl")
-  FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${CUDA_cudart_static_LIBRARY} -ldl\n" "") # use > to indicate special rt processing 
-  message( STATUS "  - Cuda devrt library: ${CUDA_cudadevrt_LIBRARY} -lrt")
-  FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${CUDA_cudadevrt_LIBRARY} -lrt\n" "") # use > to indicate special rt processing 
-  if(USE_CUTT)    
-        message( STATUS " Build CUTT Support: YES")
-        message( STATUS " --CUTT option FINE_TUNE: ${CUTT_ENABLE_FINE_TUNE}")
-        message( STATUS " --CUTT option NVTOOLS: ${CUTT_ENABLE_NVTOOLS}")
-        message( STATUS " --CUTT option NO_ALIGN_ALLOC: ${HPTT_NO_ALIGN_ALLOC}")
-        FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-DUNI_CUTT\n" "")
-  endif()
+
+install(EXPORT cytnx_targets
+  FILE CytnxTargets.cmake
+  NAMESPACE Cytnx::
+  DESTINATION ${INSTALL_CONFIGDIR}
+)
+install(DIRECTORY include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  COMPONENT headers
+  FILES_MATCHING PATTERN "*.h*")
+
+# Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfigVersion.cmake
+  VERSION ${CYTNX_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/CytnxConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfig.cmake
+  INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/CytnxConfigVersion.cmake
+  DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+# #############################################
+# # Exporting from the build tree
+export(EXPORT cytnx_targets FILE ${CMAKE_CURRENT_BINARY_DIR}/CytnxTargets.cmake NAMESPACE Cytnx::)
+
+export(PACKAGE Cytnx)
+
+# build doc:
+# #####################################################################
+# ## Build & install Documents
+# #####################################################################
+IF(BUILD_DOC)
+  FIND_PACKAGE(Doxygen REQUIRED)
+
+  if(DOXYGEN_FOUND)
+    configure_file(cytnx_Doxyfile.in cytnxDoxyfile)
+    add_custom_target(doc ALL
+      ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/cytnxDoxyfile
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating API documentation with Doxygen" VERBATIM
+    )
+  endif(DOXYGEN_FOUND)
+
+  message(STATUS " Build Documentation: YES")
+  message(STATUS "  - Doxygen: ${DOXYGEN_EXECUTABLE}")
 else()
-  message( STATUS " Build CUDA Support: NO")
+  message(STATUS " Build Documentation: NO")
 endif()
 
-
-if(USE_OMP)
-    FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-DUNI_OMP\n" "")
-    if(USE_MKL)
-          message( STATUS " Build OMP Support: YES (force with MKL=on)")
-          FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-DUNI_MKL\n" "")
-    else()
-        if(OPENMP_FOUND)
-          message( STATUS " Build OMP Support: YES")
-        else()
-          message( STATUS " Build OMP Support: NO  (Not found)")
-        endif()
-    endif()
-else()
-      message( STATUS " Build OMP Support: NO")
+if(DOXYGEN_FOUND)
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs/
+    DESTINATION docs
+    COMPONENT documentation
+  )
 endif()
 
-if(USE_HPTT)    
-    message( STATUS " Build HPTT Support: YES")
-    message( STATUS " --HPTT option FINE_TUNE: ${HPTT_ENABLE_FINE_TUNE}")
-    message( STATUS " --HPTT option ARM: ${HPTT_ENABLE_ARM}")
-    message( STATUS " --HPTT option AVX: ${HPTT_ENABLE_AVX}")
-    message( STATUS " --HPTT option IBM: ${HPTT_ENABLE_IBM}")
-    FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "-DUNI_HPTT\n" "")
+# ====================================================================
+set(libname "${CMAKE_SHARED_LIBRARY_PREFIX}cytnx.${CYTNX_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+if(DEV_MODE)
+  add_executable(dev_test ${CMAKE_CURRENT_SOURCE_DIR}/dev_test.cpp)
+  target_link_libraries(dev_test cytnx)
+  add_custom_command(TARGET dev_test POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:dev_test> ${CMAKE_CURRENT_SOURCE_DIR}/dev_test
+  )
 endif()
 
-if(BUILD_DOC)
-  message( STATUS " Build Documentation: YES")
-  message( STATUS "  - Doxygen: ${DOXYGEN_EXECUTABLE}")
-else()
-  message( STATUS " Build Documentation: NO")
-endif()
+# #####################################################################
+# Final Information Messages
+# #####################################################################
+message(STATUS "|= Final FLAGS infomation for install >>>>> ")
+message(STATUS "    CXX Compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "    CXX Flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "    BLAS and LAPACK Libraries: ${LAPACK_LIBRARIES}")
+message(STATUS "    Link libraries: ${CYTNX_LINK_Libs}")
 
-
+# # this need to append into the linkflags.tmp
+FILE(APPEND "${CMAKE_BINARY_DIR}/linkflags.tmp" "${LAPACK_LIBRARIES}\n" "")
+FILE(APPEND "${CMAKE_BINARY_DIR}/cxxflags.tmp" "${CMAKE_CXX_FLAGS}\n" "")
 
 message(STATUS "")
 message(STATUS "")
 message(STATUS "")
-
 
 install(FILES ${CMAKE_BINARY_DIR}/linkflags.tmp DESTINATION ${CMAKE_INSTALL_PREFIX}/cytnx)
 install(FILES ${CMAKE_BINARY_DIR}/cxxflags.tmp DESTINATION ${CMAKE_INSTALL_PREFIX}/cytnx)
 install(FILES ${CMAKE_BINARY_DIR}/version.tmp DESTINATION ${CMAKE_INSTALL_PREFIX}/cytnx)
 install(FILES ${CMAKE_BINARY_DIR}/vinfo.tmp DESTINATION ${CMAKE_INSTALL_PREFIX}/cytnx)
 
-if(USE_HPTT) # relocate HPTT library 
-install(DIRECTORY ${CMAKE_BINARY_DIR}/hptt DESTINATION ${CMAKE_INSTALL_PREFIX})
-endif()
-
-if(USE_CUDA)
-    if(USE_CUTT)
-        install(DIRECTORY ${CMAKE_BINARY_DIR}/cutt DESTINATION ${CMAKE_INSTALL_PREFIX})
-    endif()
-endif()
-
-
-if (BUILD_PACKAGES)
-include("Package.cmake")
-include(CPack)
+if(BUILD_PACKAGES)
+  include("Package.cmake")
+  include(CPack)
 endif()

@@ -42,7 +42,10 @@ class CMakeBuild(build_ext):
         build_args = ['--config', cfg]
         cmake_args += ['-DBUILD_PYTHON=ON','-DUSE_CUDA=OFF','-DUSE_MKL=ON','-DUSE_HPTT=ON']
         cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-        build_args += ['--', '-j2']
+
+        import multiprocessing
+        nproc = multiprocessing.cpu_count()
+        build_args += ['--', '-j'+str(nproc)]
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
@@ -58,13 +61,13 @@ class CMakeBuild(build_ext):
         ""
         build_temp_dir = os.path.abspath(self.build_temp)
         #print(">>>build_temp_dir",build_temp_dir)
-        
+
         # now, construct the Cpp:
         # 1. lib file (cpp)
-        Cpplib_dir = os.path.join(extdir,"lib") 
+        Cpplib_dir = os.path.join(extdir,"lib")
         if not os.path.exists(Cpplib_dir):
             os.mkdir(Cpplib_dir)
-        
+
         # copy libcytnx.a:
         for fn in os.listdir(build_temp_dir):
             print(fn)
@@ -130,34 +133,48 @@ class CMakeBuild(build_ext):
         self.copy_tree(os.path.join(ext.sourcedir,"include"),Cppinc_dir)
         print("[Relocate Cpp]>> find c++ header:")
         #print(">>>sourcedir",ext.sourcedir)
-        
+
         #print(">>>!!!")
         ""
-    
 
+"""
 def get_version():
     f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),"version.cmake"),'r')
     version = ['','','']
     for line in f.readlines():
         if 'set' in line:
             if 'MAJOR' in line:
-                version[0] = line.strip().split(')')[0].split()[-1]           
+                version[0] = line.strip().split(')')[0].split()[-1]
             elif 'MINOR' in line:
-                version[1] = line.strip().split(')')[0].split()[-1]           
+                version[1] = line.strip().split(')')[0].split()[-1]
             elif 'PATCH' in line:
-                version[2] = line.strip().split(')')[0].split()[-1]           
+                version[2] = line.strip().split(')')[0].split()[-1]
 
     f.close()
 
     return "%s.%s.%s"%(version[0] ,version[1] ,version[2])
+"""
 
 
+f = open("version.cmake","r")
+ver=""
+for line in f.readlines():
+    if "MAJOR" in line:
+        ver+=( (line.split("MAJOR")[-1]).split(")")[0] ).strip();
+        ver+=".";
+    elif "MINOR" in line:
+        ver+=( (line.split("MINOR")[-1]).split(")")[0] ).strip();
+        ver+=".";
+    elif "PATCH" in line:
+        ver+=( (line.split("PATCH")[-1]).split(")")[0] ).strip();
+
+f.close()
 
 
 setup(
     name='cytnx',
-    version="0.7.2",
-    maintainer='Kai-Hsin Wu, Yen-Hsin Wu',
+    version=ver,
+    maintainer='Kai-Hsin Wu, Chang-Teng Lin, Hsu Ke',
     maintainer_email="kaihsinwu@gmail.com",
     description='Project Cytnx',
     long_description="""This package provides cytnx: A Cross-section of Python & C++,Tensor network library """,

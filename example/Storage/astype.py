@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+home = str(Path.home())
+sys.path.append(home + '/Cytnx_lib')
 from cytnx import *
 
 
@@ -15,4 +19,3 @@ print(C is A)
 D = Storage(10,device=Device.cuda+0);
 E = D.astype(Type.Float)
 print(E.device_str())
-

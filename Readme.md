@@ -1,123 +1,29 @@
-# Cytnx
+# Cytnx [![Build Status (GitHub Actions)](https://github.com/kaihsin/Cytnx/actions/workflows/ci-cmake_tests.yml/badge.svg?branch=master)](https://github.com/kaihsin/Cytnx/actions/workflows/ci-cmake_tests.yml) [![codecov](https://codecov.io/gh/Cytnx-dev/Cytnx/branch/master/graph/badge.svg?token=IHXTX7UI6O)](https://codecov.io/gh/Cytnx-dev/Cytnx) [![Coverity Scan Build Status](https://scan.coverity.com/projects/28835/badge.svg)](https://scan.coverity.com/projects/cytnx-dev-cytnx)
+[![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/version.svg)](https://anaconda.org/kaihsinwu/cytnx) [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/platforms.svg)](https://anaconda.org/kaihsinwu/cytnx)
 
-![alt text](./Icon_small.png)
+![alt text](./Icons/Icon_small.png)
 
-
-## Install 
-See The following user guide for install and using of cytnx:
+## Install
+See The following user guide for installation instructions and an introduction to Cytnx:
 
 [https://kaihsinwu.gitlab.io/Cytnx_doc/install.html](https://kaihsinwu.gitlab.io/Cytnx_doc/install.html)
 
 ## Intro slide
 [Cytnx_v0.5.pdf (dated 07/25/2020)](https://drive.google.com/file/d/1vuc_fTbwkL5t52glzvJ0nNRLPZxj5en6/view?usp=sharing)
 
-
-[![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/version.svg)](https://anaconda.org/kaihsinwu/cytnx) [![Anaconda-Server Badge](https://anaconda.org/kaihsinwu/cytnx/badges/platforms.svg)](https://anaconda.org/kaihsinwu/cytnx)
-
 ## News
-    [v0.7.2] 
- 
-## Stable Version:
-[v0.7.2](https://github.com/kaihsin/Cytnx/tree/v0.7.2)
+    [v0.9.x]
 
-## Known issues:
-    v0.7.2
-    1. [Pending][GPU] Get/Set elements on GPU is still down. 
+    Implementation of new data structure for symmetric UniTensor, which differs from previous versions
 
-
-## Current dev Version:
-    v0.7.3
-    1. [Fix] bug for Get slice does not reduce when dim=1. 
-    2. [Enhance] checking the memory alloc failing for EL.  
-    3. [Change] remove Tensor init assignment op from initializer_list, for conflict with UniTensor init.    
-    4. [Enhance] print information for Symmetric UniTensor.
-    5. [Enhance] linalg::ExpM/ExpH support for symmetric UniTensor.
-    6. [Enhance] add UniTensor.get_blocks_qnums() for corresponding qnums for current blocks. 
-    7. [Enhance][Safety] add UniTensor.get_blocks_(silent=false) with "silent" option by default pop-up a warning when UniTensor is non-contiguous.   
-    8. [Enhance] add operator* and operator*= for combineBond. 
-    9. [Enhance] add support for Symmetric UniTensor with is_diag=true.
-    10. [Fix] remove the dtype & device option for arange(Nelem). Use .astype() .to() instead. 
-    11. [Fix] reshape() without postfix const causing error when reshape with const Tensor. 
-    12. [Enhance][Experiment] add Lstsq for least square calculation. [PR] 
-    13. [Fix][C++] minor issue related to laterial argument passing by variables cannot properly resolved on C++ 
-    14. [Enhance] Diag now support rank-1 Tensor as input for constructing a diagonal tensor with input as diagonal elements.
-    15. [Enhance] Add c++ example for DMRG (Ke)
-    16. [Fix] Bug fixed in DMRG code and updated to the latest features. 
-    17. [Fix] Bug in UniTensor do svd with rowrank=1 and the first rank has dimension=1.        
-
-    v0.7.2 
-    1. [Enhance] Add Tensor.set with Scalar
-    2. [Enhance][C++] Add Tensor initialize assignment op from initializer_list
-    3. [Enhance][C++] Add Storage initialize assignment op from vector & initializer list  
-    4. [Fix] bug for set partial elements on Tensor with slicing issue. 
-    5. [Fix][DenseUniTensor] set_rowrank cannot set full rank issue #24 
-
-
-    v0.7.1
-    1. [Enhance] Finish UniTensor arithmetic. 
-    2. [Fix] bug when using Tensor.get() accessing only single element 
-    3. [Enhance] Add default argument is_U = True and is_vT = True for Svd_truncate() python API 
-
-
-    v0.7
-    1. [Enhance] add binary op. -Tensor.    
-    2. [Enhance] New introduce Scalar class, generic scalar placeholder. 
-    3. [Enhance][expr] Storage.at(), Storage.back(), Storage.get_item() can now without specialization. The return is Scalar class.
-    4. [Enhance] Storage.get_item, Storage.set_item        
-    5. [Enhance] Scalar, iadd,isub,imul,idiv  
-    6. [Important] Storage.resize will match the behavior of vector, new elements are set to zero!
-    7. [Enhance] Scalar +,-,*,/ finished
-    8. [Enhance] add Histogram class and stat namespace.    
-    9. [Enhance] add fstream option for Tofile
-    10. [Enhance] return self when UniTensor.set_name
-    11. [Enhance] return self when UniTensor.set_label(s)
-    12. [Enhance] return self when UniTensor.set_rowrank
-    13. [Fatal!][Fix] fix bug of wrong answer in Tensor slice for non-contiguous Tensor, with faster internal kernel
-    14. [Warning] Slice of GPU Tensor is now off-line for further inspection. 
-    15. [Fix] bug causing crash when print non-contiguous Uint64 Tensor    
-    16. [Fatal!][Fix] fix bug of wrong answer in Tensor set-element with slice for non-contiguous Tensor. 
-    17. [Enhance] Network on the fly construction.
-    18. [Enhance] Scalar: Add on TN. TN.item()
-    19. [Fix] bug in Mod interanlly calling Cpr fixed.    
-    20. [Enhance] All operation related to TN <-> Scalar
-    21. [Enhance] Reduce RTTR overhead. 
- 
-
-    v0.6.5
-    1. [Fix] Bug in UniTensor _Load    
-    2. [Enhance] Improve stability in Lanczos_ER  
-    3. [Enhance] Move _SII to stack.
-    4. [Enhance] Add LinOp operator() for mv_elem
-    5. [Enhance] Add c++ API fast link to cutt
-    6. [Enhance] Add Fromfile/Tofile for load/save binary files @ Tensor/Storage
-    7. [Enhance] Add linspace generator
-    8. [Fix] Bug in Div for fast Blas call bug
-    9. [Enhance] Add Tensor.append(Storage) if Tensor is rank-2 and dimension match.
-    10. [Enhance] Add algo namespace
-    11. [Enhance] Add Sort-@cpu
-    12. [Enhance] add Storage.numpy() for pythonAPI
-    13. [Enhance] add Tensor.from_storage() for python API
-    
-    v0.6.4
-    1. [Enhance] Add option mv_elem for Tensordot, which actually move elements in input tensor. This is beneficial when same tensordot is called multiple times.
-    2. [Enhance] Add option cacheL, cacheR to Contract of unitensor. which mv the elements of input tensors to the matmul handy position. 
-    3. [Enhance] optimize Network contraction policy to reduce contiguous permute, with is_clone argument when PutUniTensor.
-    4. [Enhance] Add Lanczos_Gnd for fast get ground state and it's eigen value (currently only real float). 
-    5. [Enhance] Add Tridiag python API, and option is_row
-    6. [Enhance] C++ API storage add .back<>() function. 
-    7. [Enhance] C++ API storage fix from_vector() for bool type. 
-    8. [Enhance] Change Network Launch optimal=True behavior. if user order is given, optimal will not have effect.   
-    9. [Enhance] Add example/iDMRG/dmrg_optim.py for better performace with Lanczos_Gnd and Network cache.
-    10. [Fix] wrong error message in linalg::Cpr
-    11. [Fix] reshape() on a already contiguous Tensor will resulting as the change in original tensor, which should not happened.
 
 
 
 ## API Documentation:
 
-[https://kaihsin.github.io/Cytnx/docs/html/index.html](https://kaihsin.github.io/Cytnx/docs/html/index.html)
+[https://kaihsinwu.gitlab.io/cytnx_api/](https://kaihsinwu.gitlab.io/cytnx_api/)
 
-## User Guide [under construction!]:
+## User Guide [under construction]:
 
 [Cytnx User Guide](https://kaihsinwu.gitlab.io/Cytnx_doc/)
 
@@ -126,35 +32,35 @@ See The following user guide for install and using of cytnx:
 ## Objects:
     * Storage   [binded]
     * Tensor    [binded]
-    * Accessor  [c++ only]
-    * Bond      [binded] 
-    * Symmetry  [binded] 
-    * CyTensor [binded] 
-    * Network   [binded] 
+    * Accessor  [C++ only]
+    * Bond      [binded]
+    * Symmetry  [binded]
+    * CyTensor	[binded]
+    * Network   [binded]
 
 ## Feature:
 
 ### Python x C++
-    Benefit from both side. 
-    One can do simple prototype on python side 
+    Benefit from both side.
+    One can do simple prototype on Python side
     and easy transfer to C++ with small effort!
 
 
 ```c++
-    // c++ version:
+    // C++ version:
     #include "cytnx.hpp"
     cytnx::Tensor A({3,4,5},cytnx::Type.Double,cytnx::Device.cpu)
 ```
 
 
 ```python
-    # python version:
+    # Python version:
     import cytnx
     A =  cytnx.Tensor((3,4,5),dtype=cytnx.Type.Double,device=cytnx.Device.cpu)
 ```
 
 
-### 1. All the Storage and Tensor can now have mulitple type support. 
+### 1. All the Storage and Tensor can now have mulitple type support.
         The avaliable types are :
 
         | cytnx type       | c++ type             | Type object
@@ -172,8 +78,8 @@ See The following user guide for install and using of cytnx:
         | cytnx_bool       | bool                 | Type.Bool
 
 ### 2. Storage
-        * Memory container with GPU/CPU support. 
-          maintain type conversions (type casting btwn Storages) 
+        * Memory container with GPU/CPU support.
+          maintain type conversions (type casting btwn Storages)
           and moving btwn devices.
         * Generic type object, the behavior is very similar to python.
 
@@ -182,9 +88,9 @@ See The following user guide for install and using of cytnx:
             for(int i=0;i<400;i++)
                 A.at<double>(i) = i;
 
-            Storage B = A; // A and B share same memory, this is similar as python 
-            
-            Storage C = A.to(Device.cuda+0); 
+            Storage B = A; // A and B share same memory, this is similar as python
+
+            Storage C = A.to(Device.cuda+0);
 ```
 
 
@@ -232,149 +138,163 @@ See The following user guide for install and using of cytnx:
 ```c++
             typedef Accessor ac;
             Tensor A({3,4,5},Type.Double);
-            Tensor out = A(0,":","1:4"); 
+            Tensor out = A(0,":","1:4");
             // equivalent to python: out = A[0,:,1:4]
-            
+
 ```
 
 ### 4. UniTensor
-        * extension of Tensor, specifically design for Tensor network simulation. 
+        * extension of Tensor, specifically design for Tensor network simulation.
 
         * See Intro slide for more details
 ```c++
             Tensor A({3,4,5},Type.Double);
             UniTensor tA = UniTensor(A,2); // convert directly.
 
-            UniTensor tB = UniTensor({Bond(3),Bond(4),Bond(5)},{},2); // init from scratch. 
+            UniTensor tB = UniTensor({Bond(3),Bond(4),Bond(5)},{},2); // init from scratch.
 ```
 
 
 
-
 ## Examples
-    
+
+	A repository with the following examples will be released soon under the Cytnx organization on github:
+
     See example/ folder or documentation for how to use API
     See example/iTEBD folder for implementation on iTEBD algo.
     See example/DMRG folder for implementation on DMRG algo.
     See example/iDMRG folder for implementation on iDMRG algo.
     See example/HOTRG folder for implementation on HOTRG algo for classical system.
-    See example/ED folder for implementation using LinOp & Lanczos. 
+    See example/ED folder for implementation using LinOp & Lanczos.
 
 
 ## Avaliable linear-algebra function (Keep updating):
 
       func        |   inplace | CPU | GPU  | callby tn   | Tn | CyTn (xlinalg)
-    --------------|-----------|-----|------|-------------|----|-------
+    --------------|-----------|-----|------|-------------|----|----------------
       Add         |   x       |  Y  |  Y   |    Y        | Y  |   Y
       Sub         |   x       |  Y  |  Y   |    Y        | Y  |   Y
       Mul         |   x       |  Y  |  Y   |    Y        | Y  |   Y
       Div         |   x       |  Y  |  Y   |    Y        | Y  |   Y
       Cpr         |   x       |  Y  |  Y   |    Y        | Y  |   x
-    --------------|-----------|-----|------|-------------|----|-------
+    --------------|-----------|-----|------|-------------|----|----------------
       +,+=[tn]    |   x       |  Y  |  Y   |    Y (Add_) | Y  |   Y
       -,-=[tn]    |   x       |  Y  |  Y   |    Y (Sub_) | Y  |   Y
       *,*=[tn]    |   x       |  Y  |  Y   |    Y (Mul_) | Y  |   Y
       /,/=[tn]    |   x       |  Y  |  Y   |    Y (Div_) | Y  |   Y
-      ==[tn]      |   x       |  Y  |  Y   |    Y (Cpr_) | Y  |   x 
-    --------------|-----------|-----|------|-------------|----|-------
+      ==[tn]      |   x       |  Y  |  Y   |    Y (Cpr_) | Y  |   x
+    --------------|-----------|-----|------|-------------|----|----------------
       Svd         |   x       |  Y  |  Y   |    Y        | Y  |   Y
      *Svd_truncate|   x       |  Y  |  Y   |    N        | Y  |   Y
       InvM        |   InvM_   |  Y  |  Y   |    Y        | Y  |   N
       Inv         |   Inv _   |  Y  |  Y   |    Y        | Y  |   N
       Conj        |   Conj_   |  Y  |  Y   |    Y        | Y  |   Y
-    --------------|-----------|-----|------|-------------|----|-------
+    --------------|-----------|-----|------|-------------|----|----------------
       Exp         |   Exp_    |  Y  |  Y   |    Y        | Y  |   N
       Expf        |   Expf_   |  Y  |  Y   |    Y        | Y  |   N
       Eigh        |   x       |  Y  |  Y   |    Y        | Y  |   N
      *ExpH        |   x       |  Y  |  Y   |    N        | Y  |   Y
      *ExpM        |   x       |  Y  |  N   |    N        | Y  |   Y
-    --------------|-----------|-----|------|-------------|----|-------
+    --------------|-----------|-----|------|-------------|----|----------------
       Matmul      |   x       |  Y  |  Y   |    N        | Y  |   N
       Diag        |   x       |  Y  |  Y   |    N        | Y  |   N
     *Tensordot    |   x       |  Y  |  Y   |    N        | Y  |   N
-     Outer        |   x       |  Y  |  Y   |    N        | Y  |   N 
-     Vectordot    |   x       |  Y  | .Y   |    N        | Y  |   N 
-    --------------|-----------|-----|------|-------------|----|-------
+     Outer        |   x       |  Y  |  Y   |    N        | Y  |   N
+     Vectordot    |   x       |  Y  | .Y   |    N        | Y  |   N
+    --------------|-----------|-----|------|-------------|----|----------------
       Tridiag     |   x       |  Y  |  N   |    N        | Y  |   N
      Kron         |   x       |  Y  |  N   |    N        | Y  |   N
      Norm         |   x       |  Y  |  Y   |    Y        | Y  |   N
-    *Dot          |   x       |  Y  |  Y   |    N        | Y  |   N 
-     Eig          |   x       |  Y  |  N   |    N        | Y  |   N 
-    --------------|-----------|-----|------|-------------|----|-------
-     Pow          |   Pow_    |  Y  |  Y   |    Y        | Y  |   Y 
-     Abs          |   Abs_    |  Y  |  N   |    Y        | Y  |   N 
-     Qr           |   x       |  Y  |  N   |    N        | Y  |   Y 
-     Qdr          |   x       |  Y  |  N   |    N        | Y  |   Y 
+    *Dot          |   x       |  Y  |  Y   |    N        | Y  |   N
+     Eig          |   x       |  Y  |  N   |    N        | Y  |   N
+    --------------|-----------|-----|------|-------------|----|----------------
+     Pow          |   Pow_    |  Y  |  Y   |    Y        | Y  |   Y
+     Abs          |   Abs_    |  Y  |  N   |    Y        | Y  |   N
+     Qr           |   x       |  Y  |  N   |    N        | Y  |   Y
+     Qdr          |   x       |  Y  |  N   |    N        | Y  |   Y
      Det          |   x       |  Y  |  N   |    N        | Y  |   N
-    --------------|-----------|-----|------|-------------|----|-------
-     Min          |   x       |  Y  |  N   |    Y        | Y  |   N 
-     Max          |   x       |  Y  |  N   |    Y        | Y  |   N 
+    --------------|-----------|-----|------|-------------|----|----------------
+     Min          |   x       |  Y  |  N   |    Y        | Y  |   N
+     Max          |   x       |  Y  |  N   |    Y        | Y  |   N
     *Trace        |   x       |  Y  |  N   |    Y        | Y  |   Y
-     Mod          |   x       |  Y  |  Y   |    Y        | Y  |   Y 
-    Matmul_dg     |   x       |  Y  |  Y   |    N        | Y  |   N 
-    --------------|-----------|-----|------|-------------|----|-------
+     Mod          |   x       |  Y  |  Y   |    Y        | Y  |   Y
+    Matmul_dg     |   x       |  Y  |  Y   |    N        | Y  |   N
+    --------------|-----------|-----|------|-------------|----|----------------
     *Tensordot_dg |   x       |  Y  |  Y   |    N        | Y  |   N
 
     iterative solver:
-     
-        Lanczos_ER           
-    
 
-    * this is a high level linalg 
-    
+        Lanczos_ER
+
+
+    * this is a high level linalg
+
     ^ this is temporary disable
-    
+
     . this is floating point type only
- 
-## Container Generators 
+
+## Container Generators
 
     Tensor: zeros(), ones(), arange(), identity(), eye()
 
-## Physics category 
+## Physics category
 
     Tensor: pauli(), spin()
-    
-     
-## Random 
-      func        | Tn  | Stor | CPU | GPU  
-    -----------------------------------------------------
-    *Make_normal() |  Y  |  Y   | Y   |  Y
+
+
+## Random
+      func          | Tn  | Stor | CPU | GPU
+    -----------------------------------------
+    *Make_normal()  |  Y  |  Y   | Y   |  Y
     *Make_uniform() |  Y  |  Y   | Y   |  N
-    ^normal()      |  Y  |  x   | Y   |  Y
+    ^normal()       |  Y  |  x   | Y   |  Y
     ^uniform()      |  Y  |  x   | Y   |  N
 
     * this is initializer
     ^ this is generator
 
-    [Note] The difference of initializer and generator is that initializer is used to initialize the Tensor, and generator generates a new Tensor.
-     
+    [Note] The difference between initializer and generator is that the initializer is used to initialize the Tensor, and the generator creates a new Tensor.
 
-## Developer
+## How to contribute & get in contact
+    If you want to contribute to the development of the library, you are more than welocome. No matter if you want to dig deep into the technical details of the library, help improving the documentation and make the library more accessible to new users, or if you want to contribute to the project with high level algorithms - we are happy to keep improving Cytnx together.
+	Also, if you have any questions or suggestions, feel free to reach out to us.
 
-    Kai-Hsin Wu (Boston Univ.) kaihsinwu@gmail.com 
+	You can contact us by:
+    * Discord:
+[https://discord.gg/dyhF7CCE9D](https://discord.gg/dyhF7CCE9D)
+
+    * Creating an issue on github if you find a bug or have a suggestion:
+
+[https://github.com/Cytnx-dev/Cytnx/issues](https://github.com/Cytnx-dev/Cytnx/issues)
+
+    * Email, see below
+
+## Developers & Maintainers
+
+    [Creator and Project manager]
+    Kai-Hsin Wu     (Boston Univ., USA) kaihsinwu@gmail.com
+
+    Chang Teng Lin  (NTU, Taiwan): major maintainer and developer
+    Ke Hsu          (NTU, Taiwan): major maintainer and developer
+    Hao Ti          (NTU, Taiwan): documentation and linalg
+    Ying-Jer Kao    (NTU, Taiwan): setuptool, cmake
 
 
 ## Contributors
 
-    Ying-Jer Kao (NTU, Taiwan): setuptool, cmake
-    Yen-Hsin Wu (NTU, Taiwan): Network optimization
-    Yu-Hsueh Chen (NTU, Taiwan): example, and testing
-    Po-Kwan Wu (OSU): Icon optimization    
-    Wen-Han Kao (UMN, USA) : testing of conda install 
-    Ke Hsu (NTU, Taiwan): Lstsq, linalg funcitons and examples  
+    PoChung Chen     (NCHU, Taiwan)
+    Chia-Min Chung   (NSYSU, Taiwan)
+    Manuel Schneider (NYCU, Taiwan)
+    Yen-Hsin Wu      (NTU, Taiwan)
+    Po-Kwan Wu       (OSU, USA)
+    Wen-Han Kao      (UMN, USA)
+    Yu-Hsueh Chen    (NTU, Taiwan)
+
 
 ## References
 
     * example/DMRG:
-        https://www.tensors.net/dmrg
+[https://www.tensors.net/dmrg](https://www.tensors.net/dmrg)
 
     * hptt library:
-        https://github.com/springer13/hptt
-
-
-## Acknowledgement
-    KHW whould like to thanks for the following contributor(s) for invaluable contribution to the library
-
-    * PoChung Chen  (NCHU, Taiwan) : testing, and bug reporting
-
-
+[https://github.com/springer13/hptt](https://github.com/springer13/hptt)
